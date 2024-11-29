@@ -28,23 +28,69 @@ Specific materials for each day's project are listed in the project instructions
 - A text editor for code editing
 - USB connection to your computer
 
-## 📅 Project Calendar
+## 📅 Complete Project Calendar
 
-1. [LED Holiday Ornament](projects/day-01-led-ornament) - Create a glowing ornament
-2. [Holiday Greeting Card](projects/day-02-greeting-card) - Design an illuminated card
-3. [Twinkling Holiday Tree](projects/day-03-twinkling-tree) - Build a sparkling tree
-4. [Snowman's Magic Glow](projects/day-04-snowman-glow) - Light up a festive snowman
-5. [Jingle Bell Buzzer](projects/day-05-jingle-bell) - Make holiday sounds
-... and many more exciting projects!
+| Day | Project Name | Description | New Components |
+|-----|--------------|-------------|----------------|
+| 1 | LED Holiday Ornament | Create a simple light-up ornament | LED, Coin cell battery, Copper tape |
+| 2 | Holiday Greeting Card | Make an interactive light-up card | (Uses Day 1 components) |
+| 3 | Twinkling Holiday Tree | Build a light-up tree decoration | Tactile switch |
+| 4 | Snowman's Magic Glow | Create interactive snowman | Circuit Playground Express |
+| 5 | Jingle Bell Buzzer | Create holiday music | Piezo Buzzer |
+| 6 | Frosty's Glowing Hat | Build illuminated hat | NeoPixel LEDs, Breadboard |
+| 7 | Santa's Moving Sleigh | Create animated decoration | Servo Motor |
+| 8 | Reindeer Tracks Detector | Build motion-activated lights | PIR Motion Sensor |
+| 9 | Holiday Music Box | Create musical electronics | STEMMA Speaker Add-On |
+| 10 | Interactive North Pole Dial | Build rotating interface | Rotary Encoder |
+| 11 | Twinkling Star Light | Create light-sensitive decoration | Light Sensor |
+| 12 | Infrared Gift Opener | Build remote control system | Infrared LED |
+| 13 | Rudolph's Glowing Nose | Create interactive display | NeoPixel Jewel |
+| 14 | Magnetic Holiday Cards | Build magnetic switch projects | Magnetic Reed Switch |
+| 15 | Candy Cane Lights | Create holiday light pattern | Diffused NeoPixel LEDs |
+| 16 | Santa's Distance Detector | Build proximity sensor | Ultrasonic Distance Sensor |
+| 17 | Weather at the North Pole | Create temperature monitor | Temperature Sensor |
+| 18 | Dancing Snowman | Build animated decoration | Additional Servo Motors |
+| 19 | Holiday Story Time | Create audio playback | (Uses Day 9 components) |
+| 20 | Tree Light Show | Create light display | Multiple colored LEDs |
+| 21 | Interactive Wiring Fun | Learn wiring techniques | Jumper Wires |
+| 22 | Compass to the North Pole | Build direction finder | Compass Module |
+| 23 | Elf on the Shelf Alert | Create motion detector | Additional PIR Sensors |
+| 24 | Santa Tracker | Build time-based display | Real-Time Clock Module |
+| 25 | Grand Finale: Light Explosion | Create ultimate light show | NeoPixel Ring |
 
-## 🎓 Learning Objectives
-Through these projects, children will learn:
-- Basic circuit concepts
-- Programming fundamentals
-- Problem-solving skills
-- Creative design thinking
-- Electronics safety
-- Holiday-themed engineering
+## 🎓 Skill Progression
+
+The projects follow a structured learning path:
+
+1. **Basic Electronics (Days 1-3)**
+   - Simple circuits
+   - LED control
+   - Basic switches
+
+2. **Programming Introduction (Days 4-6)**
+   - Circuit Playground Express basics
+   - Basic coding concepts
+   - Light control
+
+3. **Movement and Sound (Days 7-9)**
+   - Servo motors
+   - Basic sensors
+   - Audio output
+
+4. **Advanced Sensors (Days 10-17)**
+   - Various sensor types
+   - Environmental monitoring
+   - Interactive controls
+
+5. **Complex Projects (Days 18-24)**
+   - Multiple component integration
+   - Advanced programming
+   - System design
+
+6. **Final Project (Day 25)**
+   - Culmination of all skills
+   - Complex light programming
+   - Advanced animations
 
 ## 📚 Documentation
 - [Getting Started Guide](docs/getting-started.md)
