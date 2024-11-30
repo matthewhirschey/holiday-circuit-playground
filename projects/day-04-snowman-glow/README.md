@@ -1,137 +1,143 @@
 # Day 4: Snowman's Magic Glow
 
 ## Overview
-Today, we'll create a glowing snowman circuit. When you press the snowman's "nose" (a button), LEDs will light up, giving your snowman a magical glow. This project teaches how to combine switches, LEDs, and creativity into a festive character!
+Today, we'll create a glowing snowman that lights up when you press a button. We'll use the Circuit Playground Express for the first time! The younger group will practice their circuit skills from Day 3, while the older group will start programming the board.
 
 ## Materials Needed
-- One tactile switch (button)
+- Circuit Playground Express
+- USB Cable
 - Two LEDs (white or any color)
-- A coin cell battery (CR2032)
-- Copper tape
-- Printed or hand-drawn snowman on cardstock
-- Scissors
-- Clear tape
-- Decorating supplies
+- Alligator Clips
+- Cardstock for snowman
+- Decorating supplies (markers, stickers, etc.)
 
 ## Instructions for Age 9
 
-1. Prepare Your Snowman:
-   - Draw or print a snowman outline on sturdy cardstock
-   - Cut a small hole for the button (this will be the nose)
-   - Poke two small holes for the LEDs (these will be the eyes)
+1. Getting to Know Circuit Playground Express:
+   - Look at your new Circuit Playground Express board
+   - Notice the built-in LEDs around the edge
+   - Find the buttons (A and B) on the board
+   - Locate the power connection (USB)
 
-2. Set Up the LEDs:
-   - Insert the LEDs into the eye holes
-   - Make sure the longer legs (positive) stick out on the back
-   - Shorter legs (negative) should also be on the back
+2. Create Your Snowman:
+   - Draw and cut out a snowman shape from cardstock
+   - Make it about 6-8 inches tall
+   - Cut holes for the eyes (LEDs)
+   - Cut a small hole for the nose (where button A will go)
 
-3. Create the Circuit:
-   - On the back side, attach copper tape from the positive LED legs to one leg of the button
-   - Run another piece of copper tape from the other button leg to the positive side of the battery
-   - Connect the negative LED legs directly to the negative side of the battery
+3. Build Your Circuit:
+   - Connect an LED to pin A1 using alligator clips:
+     - Longer leg (positive) to A1
+     - Shorter leg (negative) to GND
+   - Connect another LED to pin A2 the same way
+   - These will be your snowman's eyes
 
-4. Complete Assembly:
-   - Secure the battery with tape
-   - Make sure all connections are tight
-   - Test by pressing the nose (button)
+4. Test Your Circuit:
+   - Plug in your Circuit Playground Express
+   - Press button A
+   - Watch your LEDs light up!
 
 5. Decorate:
-   - Add a scarf, hat, or other details
-   - Use markers, glitter, or stickers
-   - Be careful not to disturb the circuit
+   - Add a scarf, hat, or arms
+   - Use markers or stickers
+   - Make sure decorations don't interfere with the circuit
 
 ## Instructions for Age 13
 
-1. Advanced Circuit:
-   - Follow steps 1-3 from basic instructions
-   - Add Circuit Playground Express for enhanced functionality
+1. Setup Circuit Playground Express:
+   - Connect board to computer via USB
+   - Create a new file called code.py
+   - Follow the basic wiring instructions above
 
-2. Programming the Circuit:
+2. Basic Programming:
 ```python
+import time
 import board
 import digitalio
-import time
+from adafruit_circuitplayground import cp
 
-# Set up the button and LEDs
-button = digitalio.DigitalInOut(board.A1)
-button.direction = digitalio.Direction.INPUT
-button.pull = digitalio.Pull.DOWN
-
-led1 = digitalio.DigitalInOut(board.D1)
+# Set up external LEDs
+led1 = digitalio.DigitalInOut(board.A1)
 led1.direction = digitalio.Direction.OUTPUT
 
-led2 = digitalio.DigitalInOut(board.D2)
+led2 = digitalio.DigitalInOut(board.A2)
 led2.direction = digitalio.Direction.OUTPUT
-
-# Function for twinkling effect
-def twinkle():
-    led1.value = True
-    led2.value = False
-    time.sleep(0.2)
-    led1.value = False
-    led2.value = True
-    time.sleep(0.2)
 
 # Main loop
 while True:
-    if button.value:  # Button is pressed
-        twinkle()
+    if cp.button_a:  # Button A is pressed
+        # Make eyes twinkle
+        led1.value = True
+        led2.value = False
+        time.sleep(0.2)
+        led1.value = False
+        led2.value = True
+        time.sleep(0.2)
     else:
+        # Turn off both LEDs when button is not pressed
         led1.value = False
         led2.value = False
 ```
 
-## Testing and Troubleshooting
+3. Advanced Features:
+```python
+# Add this function for a fading effect
+def fade_eyes():
+    # Turn on NeoPixels for a glowing effect
+    for i in range(10):
+        cp.pixels.fill((i * 5, i * 5, i * 5))
+        time.sleep(0.05)
+    for i in range(10, 0, -1):
+        cp.pixels.fill((i * 5, i * 5, i * 5))
+        time.sleep(0.05)
+    cp.pixels.fill((0, 0, 0))
+```
 
-1. Circuit Testing:
-   - Check LED polarity (longer leg is positive)
-   - Verify button connections
-   - Test battery orientation
-   - Look for breaks in copper tape
+## Testing Your Snowman
 
-2. Common Issues:
-   - LEDs don't light: Check polarity and connections
-   - Inconsistent operation: Check battery contact
-   - Button doesn't work: Verify switch connections
+### For 9-Year-Olds:
+1. Check LED Connections:
+   - Make sure alligator clips are secure
+   - Verify LED legs are connected to correct pins
+   - Test by pressing button A
+
+### For 13-Year-Olds:
+1. Code Testing:
+   - Save your code
+   - Press the reset button on the board
+   - Try different light patterns
+   - Experiment with timing
+
+## Troubleshooting
+
+- LEDs not lighting up?
+  - Check LED polarity (longer leg to A1/A2)
+  - Verify alligator clip connections
+  - Make sure USB is properly connected
+  - Press reset button and try again
 
 ## Extensions
 
-1. Basic Extensions:
-   - Add more LEDs for features
-   - Create different light patterns
-   - Add a second button
+### For 9-Year-Olds:
+1. Add more LEDs
+2. Try different colored LEDs
+3. Create a button B effect
 
-2. Advanced Extensions:
-   - Program multiple light sequences
-   - Add motion detection
-   - Include sound effects
-   - Create interactive patterns
+### For 13-Year-Olds:
+1. Add different light patterns
+2. Create animations with the NeoPixels
+3. Add sound effects
+4. Make interactive patterns
 
 ## Safety Notes
-
-- Handle scissors carefully
-- Keep small parts organized
+- Handle Circuit Playground Express carefully
+- Keep connections secure
 - Adult supervision for tools
-- Proper battery handling
+- Keep track of small parts
 
 ## Parent Notes
-
-- Help with hole creation
+- Help with Circuit Playground Express setup
 - Guide circuit testing
-- Assist with battery placement
+- Assist with USB connection
 - Monitor tool usage
-- Encourage creativity with decoration
-
-## Learning Outcomes
-
-1. Circuit Concepts:
-   - Switch operation
-   - LED polarity
-   - Circuit completion
-   - Parallel circuits
-
-2. Practical Skills:
-   - Fine motor skills
-   - Following instructions
-   - Problem-solving
-   - Creative design
+- For 13-year-olds, help with initial programming setup

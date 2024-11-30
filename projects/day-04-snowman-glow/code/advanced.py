@@ -1,65 +1,50 @@
-# Advanced LED control for snowman
-# Creates multiple light patterns and effects
+# Advanced LED control for snowman using Circuit Playground Express
+# Designed for 13-year-old level
 
+import time
 import board
 import digitalio
-import time
-import random
+from adafruit_circuitplayground import cp
 
-# Set up the buttons
-button_a = digitalio.DigitalInOut(board.A1)
-button_a.direction = digitalio.Direction.INPUT
-button_a.pull = digitalio.Pull.DOWN
+# Set up external LEDs
+led1 = digitalio.DigitalInOut(board.A1)
+led1.direction = digitalio.Direction.OUTPUT
 
-button_b = digitalio.DigitalInOut(board.A2)
-button_b.direction = digitalio.Direction.INPUT
-button_b.pull = digitalio.Pull.DOWN
+led2 = digitalio.DigitalInOut(board.A2)
+led2.direction = digitalio.Direction.OUTPUT
 
-# Set up the LEDs
-led_pins = [board.D1, board.D2, board.D3, board.D4]
-leds = []
+# Clear all NeoPixels
+cp.pixels.fill((0, 0, 0))
 
-for pin in led_pins:
-    led = digitalio.DigitalInOut(pin)
-    led.direction = digitalio.Direction.OUTPUT
-    leds.append(led)
+def twinkle_eyes():
+    """Make the LEDs twinkle alternately"""
+    led1.value = True
+    led2.value = False
+    time.sleep(0.2)
+    led1.value = False
+    led2.value = True
+    time.sleep(0.2)
 
-def twinkle_pattern():
-    """Create a twinkling effect"""
-    for led in leds:
-        led.value = True
-        time.sleep(0.2)
-        led.value = False
-
-def random_pattern():
-    """Random LED blinking pattern"""
-    for _ in range(5):
-        led = random.choice(leds)
-        led.value = True
-        time.sleep(0.1)
-        led.value = False
-        time.sleep(0.1)
-
-def alternate_pattern():
-    """Alternate between pairs of LEDs"""
-    # First pair on, second pair off
-    leds[0].value = True
-    leds[1].value = True
-    leds[2].value = False
-    leds[3].value = False
-    time.sleep(0.5)
-    # Switch pairs
-    leds[0].value = False
-    leds[1].value = False
-    leds[2].value = True
-    leds[3].value = True
-    time.sleep(0.5)
+def fade_effect():
+    """Create a fading effect with the NeoPixels"""
+    for i in range(10):
+        cp.pixels.fill((i * 5, i * 5, i * 5))
+        time.sleep(0.05)
+    for i in range(10, 0, -1):
+        cp.pixels.fill((i * 5, i * 5, i * 5))
+        time.sleep(0.05)
+    cp.pixels.fill((0, 0, 0))
 
 # Main loop
 while True:
-    if button_a.value:  # First button controls twinkle pattern
-        twinkle_pattern()
-    elif button_b.value:  # Second button controls random pattern
-        random_pattern()
-    else:  # No buttons pressed - default pattern
-        alternate_pattern()
+    if cp.button_a:  # Button A controls eye twinkle
+        twinkle_eyes()
+    elif cp.button_b:  # Button B controls NeoPixel fade
+        fade_effect()
+    else:
+        # Everything off when no buttons are pressed
+        led1.value = False
+        led2.value = False
+        cp.pixels.fill((0, 0, 0))
+    
+    time.sleep(0.1)  # Small delay to prevent button bounce
