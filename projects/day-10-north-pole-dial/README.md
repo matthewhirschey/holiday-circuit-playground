@@ -1,59 +1,65 @@
 # Day 10: Interactive North Pole Dial
 
 ## Overview
-Today we'll create an interactive dial that controls holiday lights! Using a rotary encoder (like a digital knob), we'll learn about rotary input while controlling NeoPixels. The younger group will use the dial to change colors and brightness, while the older group will program custom effects.
+Today we'll create a rotary control interface using an encoder - like a digital knob for our projects! We'll use the encoder to control lights and make interactive displays. The younger group will learn about rotary input, while the older group will program complex control patterns.
 
 ## Materials Needed
 - Circuit Playground Express
-- Rotary Encoder + Knob
-- Mini Breadboard
-- Alligator Clips
-- NeoPixel Jewel (from Day 6)
-- USB Cable
+- Rotary Encoder with Pushbutton
+- Mini Breadboard (from previous days)
+- Jumper Wires (at least 5: power, ground, and 3 signals)
+- NeoPixel Strip or Jewel (optional for display)
 
 ## Instructions for Age 9
 
-1. Meet Your Rotary Encoder:
-   - Look at your encoder - it has 5 pins:
-     - CLK (clock)
-     - DT (data)
-     - SW (switch/button)
-     - VCC (power)
-     - GND (ground)
-   - Turning the knob makes clicking sounds
-   - The knob can also be pressed like a button
+1. Understand Your Rotary Encoder:
+   - Look at the encoder pins:
+     - CLK (Pin A) - First signal pin
+     - DT (Pin B) - Second signal pin
+     - SW - Button signal pin
+     - GND - Ground connection
+     - + - Power connection (if present)
+   - Notice how it clicks when you turn it
+   - Try pressing the button on top
 
-2. Connect the Encoder:
-   - Use alligator clips to connect:
-     - VCC to 3.3V on Circuit Playground
-     - GND to GND
-     - CLK to A1
-     - DT to A2
-     - SW to A3
+2. Set Up Breadboard:
+   - Power rails (like previous days):
+     - Red jumper wire from 3.3V to red (+) rail
+     - Black jumper wire from GND to blue (-) rail
 
-3. Connect NeoPixel Jewel:
-   - Power to 3.3V
-   - Ground to GND
-   - Signal to A0
+3. Connect Encoder:
+   - Place encoder in breadboard
+   - Connect power:
+     - GND pin to - rail
+     - + pin to + rail (if present)
+   - Connect signals:
+     - CLK (Pin A) to A1 using jumper wire
+     - DT (Pin B) to A2 using jumper wire
+     - SW (button) to A3 using jumper wire
 
-4. Try Your Controls:
+4. Add Display (Optional):
+   - Connect NeoPixel:
+     - Power to + rail
+     - Ground to - rail
+     - Signal to A4
+
+5. Test Your Control:
    - Turn knob right: Change colors
    - Turn knob left: Change brightness
-   - Press knob: Toggle special effects
-   - Watch the NeoPixels respond!
+   - Press knob: Special effect!
 
 ## Instructions for Age 13
 
 1. Hardware Setup:
-   - Follow basic connection instructions above
-   - Create secure mounting for encoder
+   - Follow basic connection steps
+   - Ensure encoder is stable in breadboard
+   - Consider clean wire routing
 
-2. Basic Encoder Programming:
+2. Basic Encoder Code:
 ```python
 import time
 import board
 import digitalio
-import neopixel
 
 # Set up encoder pins
 clk = digitalio.DigitalInOut(board.A1)
@@ -64,9 +70,6 @@ clk.direction = digitalio.Direction.INPUT
 dt.direction = digitalio.Direction.INPUT
 sw.direction = digitalio.Direction.INPUT
 sw.pull = digitalio.Pull.UP
-
-# Set up NeoPixel Jewel
-jewel = neopixel.NeoPixel(board.A0, 7, brightness=0.3)
 
 # Track encoder position
 encoder_pos = 0
@@ -81,83 +84,80 @@ while True:
             encoder_pos += 1
         else:
             encoder_pos -= 1
-        
-        # Update color based on position
-        color = (abs(encoder_pos) % 255, 0, 0)
-        jewel.fill(color)
-    
+        print(f"Position: {encoder_pos}")
     last_clk = current_clk
+    
+    # Check button
+    if not sw.value:
+        print("Button pressed!")
+        time.sleep(0.2)  # Debounce
+    
     time.sleep(0.01)
 ```
 
 3. Advanced Features:
 ```python
-def rainbow_cycle(pos):
-    """Generate rainbow colors based on position"""
-    if pos < 85:
-        return (pos * 3, 255 - pos * 3, 0)
-    elif pos < 170:
-        pos -= 85
-        return (255 - pos * 3, 0, pos * 3)
-    else:
-        pos -= 170
-        return (0, pos * 3, 255 - pos * 3)
-
-class EncoderControl:
+class DialControl:
     def __init__(self):
+        # Track state
         self.position = 0
-        self.color_pos = 0
+        self.mode = 0
         self.brightness = 0.3
-        self.effect_mode = 0
-    
-    def update(self, direction):
-        """Update based on encoder turn"""
-        if self.effect_mode == 0:  # Color mode
-            self.color_pos = (self.color_pos + direction) % 255
-            return rainbow_cycle(self.color_pos)
+        self.last_button = time.monotonic()
+        
+    def update_from_encoder(self, direction):
+        """Handle encoder movement"""
+        if self.mode == 0:  # Color mode
+            self.position = (self.position + direction) % 255
         else:  # Brightness mode
             self.brightness = max(0.1, min(1.0, 
                 self.brightness + direction * 0.05))
-            return None
+    
+    def handle_button(self):
+        """Handle button press"""
+        current = time.monotonic()
+        if current - self.last_button > 0.2:  # Debounce
+            self.mode = (self.mode + 1) % 2
+            self.last_button = current
+            return True
+        return False
 ```
 
 ## Testing and Troubleshooting
 
 ### For 9-Year-Olds:
 1. Encoder Not Working?
-   - Check all connections
-   - Verify pins are secure
-   - Try rotating slower
-   - Press reset button
+   - Check all wire connections
+   - Verify power connections
+   - Make sure encoder is fully inserted
+   - Try turning slower
 
 ### For 13-Year-Olds:
 1. Code Issues?
+   - Debug encoder readings
    - Check pin assignments
-   - Verify encoder readings
-   - Debug position tracking
-   - Test with print statements
+   - Verify state tracking
+   - Test button debouncing
 
-## Extensions
+## Tips for Success
+1. Understanding Rotation:
+   - Clockwise usually increases values
+   - Counter-clockwise decreases
+   - Button press can switch modes
 
-### For 9-Year-Olds:
-1. Create color combinations
-2. Try different patterns
-3. Add button functions
-
-### For 13-Year-Olds:
-1. Add more effect modes
-2. Create animations
-3. Add sound feedback
-4. Implement acceleration
+2. Clean Code:
+   - Track last position
+   - Debounce button presses
+   - Use modes for different controls
 
 ## Safety Notes
-- Handle connections carefully
-- Don't force the encoder
-- Keep track of small parts
-- Mind the wire connections
+- Handle encoder gently
+- Don't force connections
+- Keep wires organized
+- Mind the polarity
 
 ## Parent Notes
-- Help with initial setup
-- Guide proper handling
-- Assist with connections
-- Support troubleshooting
+- Help with initial wiring
+- Guide encoder usage
+- Assist with testing
+- Support exploration
