@@ -1,54 +1,54 @@
 # Day 12: Infrared Gift Opener
 
 ## Overview
-Today we'll create an infrared remote control system! Using an IR LED, we'll learn about invisible light communication. The younger group will create a simple remote control, while the older group will program custom IR signals and patterns.
+Today we'll create an infrared remote control! Using an IR LED, we'll learn about invisible light communication. The younger group will create a simple remote control, while the older group will program custom IR signals and patterns.
 
 ## Materials Needed
 - Circuit Playground Express
-- Infrared LED
+- IR LED
+- 100Ω resistor (for IR LED)
+- Mini Breadboard (from previous days)
 - Regular LED (for visual feedback)
-- Mini Breadboard
-- Alligator Clips
-- Button
-- USB Cable
+- Jumper Wires (4-5 needed)
 
 ## Instructions for Age 9
 
-1. Meet Your IR LED:
-   - Look at the IR LED - it looks clear/bluish
-   - Has longer (positive) and shorter (negative) legs
-   - When on, it sends invisible light!
-   - We'll use a regular LED to show when it's working
+1. Understand Your IR LED:
+   - Looks clear/bluish in color
+   - Has a longer leg (positive/anode)
+   - Has a shorter leg (negative/cathode)
+   - Sends invisible light!
+   - Regular LED will help us see when it's working
 
-2. Connect Your Circuit:
-   - IR LED:
-     - Longer leg to pin A1
-     - Shorter leg to GND
-   - Regular LED (for feedback):
-     - Longer leg to pin A2
-     - Shorter leg to GND
-   - Button:
-     - One side to pin A3
-     - Other side to 3.3V
+2. Set Up Breadboard:
+   - Power rails (like previous days):
+     - Red jumper wire from 3.3V to red (+) rail
+     - Black jumper wire from GND to blue (-) rail
 
-3. Test Your Remote:
-   - Press button to send signal
+3. Connect IR LED:
+   - Place IR LED in breadboard
+   - Connect the longer leg through resistor to A1
+   - Connect shorter leg to GND (- rail)
+
+4. Add Regular LED for Feedback:
+   - Place LED in breadboard
+   - Connect longer leg through resistor to A2
+   - Connect shorter leg to GND (- rail)
+
+5. Test Your Remote:
+   - Press A button to send signal
    - Regular LED blinks to show transmission
-   - Point at another student's receiver
-   - Watch their lights respond!
-
-4. Experiment:
-   - Try different distances
-   - Test different angles
-   - See what blocks the signal
+   - IR LED sends invisible signal!
+   - Can test with phone camera (some can see IR light)
 
 ## Instructions for Age 13
 
 1. Hardware Setup:
-   - Follow basic connection instructions above
-   - Add multiple buttons for different commands
+   - Follow basic connection steps
+   - Ensure proper LED polarity
+   - Place LEDs for easy viewing
 
-2. Basic IR Transmission Code:
+2. Basic IR Code:
 ```python
 import time
 import board
@@ -56,7 +56,7 @@ import pulseio
 import digitalio
 
 # Set up IR LED for transmission
-ir_tx = pulseio.PulseOut(board.A1, frequency=38000, duty_cycle=32768)
+ir_tx = pulseio.PWMOut(board.A1, frequency=38000, duty_cycle=32768)
 
 # Set up feedback LED
 led = digitalio.DigitalInOut(board.A2)
@@ -66,9 +66,9 @@ led.direction = digitalio.Direction.OUTPUT
 def create_ir_signal(command):
     """Create IR signal pulses for a command"""
     # Basic pulse pattern
-    pulses = []
-    # Header
-    pulses.extend([9000, 4500])  # Start mark and space
+    pulses = [
+        9000, 4500,  # Start mark and space
+    ]
     # Command bytes
     for bit in [int(b) for b in format(command, '08b')]:
         if bit:
@@ -81,86 +81,63 @@ def create_ir_signal(command):
 
 # Main loop
 while True:
-    if button.value:
-        # Send signal
+    if cp.button_a:
+        # Send signal and blink LED
         pulses = create_ir_signal(0x12)  # Example command
+        led.value = True  # Turn on feedback LED
         ir_tx.send(pulses)
-        # Blink feedback LED
-        led.value = True
+        led.value = False  # Turn off feedback LED
         time.sleep(0.1)
-        led.value = False
-    time.sleep(0.1)
 ```
 
 3. Advanced Features:
 ```python
-class IRRemote:
-    def __init__(self):
-        self.ir_tx = pulseio.PulseOut(board.A1, frequency=38000, 
-                                      duty_cycle=32768)
-        self.command_history = []
-        self.last_send_time = time.monotonic()
-    
-    def send_command(self, command, repeat=1):
-        """Send IR command with repeat and tracking"""
-        current_time = time.monotonic()
-        # Avoid sending too frequently
-        if current_time - self.last_send_time < 0.1:
-            return False
-            
-        pulses = create_ir_signal(command)
-        for _ in range(repeat):
-            self.ir_tx.send(pulses)
-            time.sleep(0.05)
-        
-        self.command_history.append((command, current_time))
-        self.last_send_time = current_time
-        return True
-
-    def create_macro(self, commands):
-        """Send a sequence of commands"""
-        for cmd in commands:
-            self.send_command(cmd)
-            time.sleep(0.2)
+def send_command_with_repeat(command, repeat=3):
+    """Send command multiple times"""
+    pulses = create_ir_signal(command)
+    for _ in range(repeat):
+        ir_tx.send(pulses)
+        time.sleep(0.1)
 ```
 
 ## Testing and Troubleshooting
 
 ### For 9-Year-Olds:
-1. Signal Not Working?
-   - Check LED connections
-   - Point directly at receiver
-   - Move closer
-   - Try fresh battery
+1. IR LED Not Working?
+   - Check LED direction
+   - Verify resistor connection
+   - Test with phone camera
+   - Look for feedback LED
 
 ### For 13-Year-Olds:
-1. Code Issues?
-   - Verify timing values
-   - Check signal pattern
-   - Debug with feedback LED
-   - Test different commands
+1. Signal Issues?
+   - Debug pulse timing
+   - Verify frequency
+   - Test command bytes
+   - Check LED current
 
-## Extensions
+## IR LED Tips
 
-### For 9-Year-Olds:
-1. Create different signals
-2. Test range limits
-3. Make a signal game
+1. Understanding IR:
+   - Invisible to human eye
+   - Needs precise timing
+   - Used in many remotes
+   - Works like regular LED
 
-### For 13-Year-Olds:
-1. Add more commands
-2. Create custom protocols
-3. Build signal repeater
-4. Add error detection
+2. Good Practices:
+   - Use feedback LED
+   - Keep steady aim
+   - Allow cool-down time
+   - Test with camera
 
 ## Safety Notes
 - Don't look directly at IR LED
-- Handle connections carefully
-- Mind battery usage
-- Keep track of small parts
+- Use correct resistor
+- Mind LED polarity
+- Keep connections secure
 
 ## Parent Notes
-- Help with initial setup
-- Guide proper aiming
-- Assist with connections
+- Help with LED identification
+- Guide resistor selection
+- Assist with testing
 - Support troubleshooting
