@@ -2,6 +2,8 @@
 # Designed for 13-year-old level
 
 import time
+import array
+import math
 import board
 import audioio
 from adafruit_circuitplayground import cp
@@ -9,62 +11,65 @@ from adafruit_circuitplayground import cp
 class StoryPlayer:
     def __init__(self):
         self.audio = audioio.AudioOut(board.A1)
-        self.current_story = None
-        self.position = 0
-        self.stories = [
-            'intro.wav',
-            'part1.wav',
-            'part2.wav',
-            'ending.wav'
-        ]
-        self.effects = [
-            'night.wav',
-            'wind.wav',
-            'magic.wav'
-        ]
+        self.current_position = 0
+        
+        # Musical notes (frequency in Hz)
+        self.NOTES = {
+            'C4': 262,
+            'D4': 294,
+            'E4': 330,
+            'F4': 349,
+            'G4': 392,
+            'A4': 440,
+            'B4': 494,
+            'C5': 523
+        }
+        
+        # Story sequences (note, duration)
+        self.SEQUENCES = {
+            'intro': [('C4', 0.3), ('E4', 0.3), ('G4', 0.5)],
+            'magic': [('C5', 0.2), ('G4', 0.2), ('E4', 0.2), ('C4', 0.4)],
+            'danger': [('B4', 0.2), ('B4', 0.2), ('B4', 0.4)],
+            'victory': [('C4', 0.2), ('E4', 0.2), ('G4', 0.2), ('C5', 0.6)]
+        }
     
-    def play_with_effects(self, filename, add_effects=False):
-        """Play audio with optional sound effects"""
-        with open(filename, 'rb') as wavfile:
-            wav = audioio.WaveFile(wavfile)
-            self.audio.play(wav)
-            
-            while self.audio.playing:
-                # Volume control
-                if cp.switch:
-                    self.audio.volume = 0.3
-                else:
-                    self.audio.volume = 1.0
-                
-                if add_effects:
-                    # Add environment effects
-                    if cp.light < 20:  # Dark
-                        self.play_ambient('night.wav')
-                    if cp.temperature < 20:  # Cold
-                        self.play_ambient('wind.wav')
-                
-                time.sleep(0.1)
+    def generate_sine_wave(self, frequency, length):
+        """Create a sine wave of given frequency and length"""
+        length = int(length * 8000)
+        sine_wave = array.array('H', [0] * length)
+        for i in range(length):
+            sine_wave[i] = int(math.sin(math.pi * 2 * i / length) * 32767 + 32767)
+        return audioio.RawSample(sine_wave)
     
-    def play_ambient(self, effect_file):
-        """Play background effect"""
-        with open(effect_file, 'rb') as effect:
-            effect_wav = audioio.WaveFile(effect)
-            # Play effect at low volume
-            self.audio.volume = 0.2
-            self.audio.play(effect_wav)
-            while self.audio.playing:
-                pass
-            # Restore main volume
-            self.audio.volume = 1.0
+    def play_tone(self, frequency, duration):
+        """Play a single tone"""
+        sound = self.generate_sine_wave(frequency, duration)
+        self.audio.play(sound)
+        time.sleep(duration)
     
-    def play_sequence(self, story_parts):
-        """Play multiple audio files in sequence"""
-        for part in story_parts:
-            self.play_with_effects(part, True)
-            time.sleep(0.5)
+    def play_sequence(self, sequence):
+        """Play a sequence of notes"""
+        for note, duration in sequence:
+            self.play_tone(self.NOTES[note], duration)
+            time.sleep(0.05)  # Small gap between notes
+    
+    def play_with_effects(self, sequence):
+        """Play sequence with environmental effects"""
+        # Base volume on light level
+        light_level = cp.light
+        self.audio.volume = max(0.3, min(1.0, light_level / 300))
+        
+        # Play sequence
+        self.play_sequence(sequence)
+        
+        # Add special effects based on sensors
+        if cp.light < 20:  # Dark
+            self.play_tone(self.NOTES['C4'] / 2, 0.3)  # Low note
+        if cp.temperature < 20:  # Cold
+            self.play_tone(self.NOTES['A4'] * 2, 0.2)  # High note
     
     def flash_lights(self, color):
-        """Create light effect during playback"""
+        """Create light effect"""
         cp.pixels.fill(color)
         time.sleep(0.1)
         cp.pixels.fill((0, 0, 0))
@@ -72,22 +77,29 @@ class StoryPlayer:
     def update(self):
         """Main update loop"""
         if cp.button_a:
-            # Progress story
-            if self.position < len(self.stories):
-                self.play_with_effects(self.stories[self.position], True)
-                self.flash_lights((0, 255, 0))  # Green flash
-                self.position += 1
+            # Progress through story
+            if self.current_position == 0:
+                self.play_with_effects(self.SEQUENCES['intro'])
+                self.flash_lights((0, 255, 0))
+            elif self.current_position == 1:
+                self.play_with_effects(self.SEQUENCES['magic'])
+                self.flash_lights((255, 0, 255))
+            elif self.current_position == 2:
+                self.play_with_effects(self.SEQUENCES['danger'])
+                self.flash_lights((255, 0, 0))
+            elif self.current_position == 3:
+                self.play_with_effects(self.SEQUENCES['victory'])
+                self.flash_lights((0, 255, 255))
+            
+            self.current_position = (self.current_position + 1) % 4
         
         elif cp.button_b:
-            # Replay current part
-            if self.position > 0:
-                self.play_with_effects(self.stories[self.position - 1], True)
-                self.flash_lights((0, 0, 255))  # Blue flash
-        
-        elif cp.button_a and cp.button_b:
-            # Play special effect
-            self.play_with_effects('magic.wav', False)
-            self.flash_lights((255, 0, 255))  # Purple flash
+            # Replay current sequence
+            if self.current_position > 0:
+                sequence_names = ['intro', 'magic', 'danger', 'victory']
+                current_sequence = sequence_names[self.current_position - 1]
+                self.play_with_effects(self.SEQUENCES[current_sequence])
+                self.flash_lights((0, 0, 255))
 
 # Create story player
 player = StoryPlayer()
