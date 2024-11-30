@@ -1,17 +1,16 @@
 # Basic motion detection for Circuit Playground Express
-# Designed for 9-year-old level (pre-loaded program)
+# Designed for 9-year-old level
 
 import time
 import board
 import digitalio
 import neopixel
-from adafruit_circuitplayground import cp
 
-# Set up the motion sensor
+# Set up the motion sensor on A1
 pir = digitalio.DigitalInOut(board.A1)
 pir.direction = digitalio.Direction.INPUT
 
-# Set up the NeoPixel Jewel
+# Set up the NeoPixel Jewel on A2
 jewel = neopixel.NeoPixel(board.A2, 7, brightness=0.3)
 
 # Define colors
