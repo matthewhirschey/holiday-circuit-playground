@@ -1,95 +1,80 @@
-# Advanced NeoPixel nose control for Circuit Playground Express
-# Designed for 13-year-old level
+# Advanced NeoPixel Jewel control for Circuit Playground Express
+# Designed for 13-year-old level - works with either connection method
 
 import time
 import board
 import neopixel
-import random
+import math
 from adafruit_circuitplayground import cp
-
-# Set up NeoPixel Jewel
-jewel = neopixel.NeoPixel(board.A1, 7, brightness=0.3)
-
-# Define colors
-RED = (255, 0, 0)
-BRIGHT_RED = (255, 50, 50)
-DIM_RED = (64, 0, 0)
-WHITE = (255, 255, 255)
-OFF = (0, 0, 0)
 
 class GlowingNose:
     def __init__(self):
-        self.brightness = 0
-        self.increasing = True
-        self.speed = 0.05
-        self.max_bright = 255
-        self.min_bright = 20
-        self.phase = 0
-        self.pattern_index = 0
-    
-    def breath_effect(self):
-        """Create smooth breathing light effect"""
-        if self.increasing:
-            self.brightness += 5
-            if self.brightness >= self.max_bright:
-                self.increasing = False
-        else:
-            self.brightness -= 5
-            if self.brightness <= self.min_bright:
-                self.increasing = True
+        # Set up NeoPixel Jewel
+        self.jewel = neopixel.NeoPixel(board.A1, 7, brightness=0.3)
         
-        return (self.brightness, 0, 0)
+        # Animation settings
+        self.brightness = 0.3
+        self.phase = 0
+        self.mode = 0
+        
+        # Colors
+        self.RED = (255, 0, 0)
+        self.BRIGHT_RED = (255, 50, 50)
+        self.WARM_RED = (255, 30, 0)
     
-    def sparkle_effect(self):
-        """Create random sparkle pattern"""
-        pixels = [OFF] * 7
-        bright_pixel = random.randint(0, 6)
-        pixels[bright_pixel] = BRIGHT_RED
-        return pixels
+    def pulse_pattern(self):
+        """Create breathing effect"""
+        self.phase += 0.1
+        brightness = (math.sin(self.phase) + 1) / 2
+        return (int(255 * brightness), 0, 0)
     
-    def candy_cane_spin(self):
-        """Red and white spinning pattern"""
-        pixels = []
-        for i in range(7):
-            if (i + self.phase) % 2 == 0:
-                pixels.append(RED)
-            else:
-                pixels.append(WHITE)
-        self.phase = (self.phase + 1) % 2
-        return pixels
+    def sparkle_pattern(self):
+        """Create random sparkle effect"""
+        self.jewel.fill(self.RED)
+        # Add random bright pixel
+        i = random.randint(0, 6)
+        self.jewel[i] = self.BRIGHT_RED
+        time.sleep(0.1)
     
-    def wave_effect(self):
-        """Create wave of brightness"""
-        pixels = []
-        for i in range(7):
-            brightness = int(((math.sin(self.phase + i/2) + 1) / 2) * 255)
-            pixels.append((brightness, 0, 0))
-        self.phase = (self.phase + 0.2) % (2 * math.pi)
-        return pixels
+    def spin_pattern(self):
+        """Create spinning light effect"""
+        self.jewel.fill((0, 0, 0))
+        pos = int(self.phase) % 7
+        # Main light
+        self.jewel[pos] = self.BRIGHT_RED
+        # Fade on either side
+        self.jewel[(pos-1) % 7] = self.WARM_RED
+        self.jewel[(pos+1) % 7] = self.WARM_RED
+        self.phase += 0.2
+    
+    def run_display(self):
+        """Main update function"""
+        if cp.button_a:
+            # Breathing pattern
+            color = self.pulse_pattern()
+            self.jewel.fill(color)
+            
+        elif cp.button_b:
+            # Spinning pattern
+            self.spin_pattern()
+            
+        elif cp.button_a and cp.button_b:
+            # Sparkle pattern
+            self.sparkle_pattern()
+        else:
+            # Default glow
+            self.jewel.fill(self.RED)
+        
+        # Optional: Show mode on CPX LEDs
+        if self.mode == 0:
+            cp.pixels[0] = (10, 0, 0)  # Dim red
+        else:
+            cp.pixels[0] = (0, 0, 0)
 
 # Create nose controller
 nose = GlowingNose()
 
 # Main loop
 while True:
-    if cp.button_a:
-        # Breathing effect
-        color = nose.breath_effect()
-        jewel.fill(color)
-    elif cp.button_b:
-        # Sparkle effect
-        pixels = nose.sparkle_effect()
-        for i in range(7):
-            jewel[i] = pixels[i]
-    elif cp.button_a and cp.button_b:
-        # Candy cane spin
-        pixels = nose.candy_cane_spin()
-        for i in range(7):
-            jewel[i] = pixels[i]
-    else:
-        # Default wave effect
-        pixels = nose.wave_effect()
-        for i in range(7):
-            jewel[i] = pixels[i]
-    
-    time.sleep(0.05)
+    nose.run_display()
+    time.sleep(0.01)
