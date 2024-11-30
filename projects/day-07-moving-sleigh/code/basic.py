@@ -1,5 +1,5 @@
 # Basic servo control for Circuit Playground Express
-# Designed for 9-year-old level (pre-loaded program)
+# Designed for 9-year-old level
 
 import time
 import board
@@ -8,7 +8,7 @@ from adafruit_motor import servo
 from adafruit_circuitplayground import cp
 
 # Set up the servo on pin A1
-pwm = pwmio.PWMOut(board.A1, duty_cycle=2 ** 15, frequency=50)
+pwm = pwmio.PWMOut(board.A1, frequency=50)
 my_servo = servo.Servo(pwm)
 
 # Center the servo to start
