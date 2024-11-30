@@ -1,38 +1,57 @@
-# Basic IR control for Circuit Playground Express
-# Designed for 9-year-old level (pre-loaded program)
+# Basic IR remote control for Circuit Playground Express
+# Designed for 9-year-old level
 
 import time
 import board
 import pulseio
 import digitalio
+from adafruit_circuitplayground import cp
 
-# Set up IR LED
-ir_tx = pulseio.PulseOut(board.A1, frequency=38000, duty_cycle=32768)
+# Set up IR LED for transmission
+ir_tx = pulseio.PWMOut(board.A1, frequency=38000, duty_cycle=32768)
 
 # Set up feedback LED
 led = digitalio.DigitalInOut(board.A2)
 led.direction = digitalio.Direction.OUTPUT
 
-# Set up button
-button = digitalio.DigitalInOut(board.A3)
-button.direction = digitalio.Direction.INPUT
-button.pull = digitalio.Pull.DOWN
+# Simple remote control codes
+CODES = {
+    'OPEN': 0x12,
+    'CLOSE': 0x13,
+}
 
-# Simple IR signal pattern
-pulses = [9000, 4500]  # Start mark and space
-for _ in range(8):  # 8 bits of data
-    pulses.extend([560, 560])  # Simple '0' bit pattern
-pulses.append(560)  # End mark
+def send_code(code):
+    """Send a simple IR code"""
+    # Basic pulse pattern
+    pulses = [9000, 4500]  # Start mark and space
+    
+    # Add command pulses
+    for bit in [int(b) for b in format(code, '08b')]:
+        if bit:
+            pulses.extend([560, 1690])  # 1 bit
+        else:
+            pulses.extend([560, 560])   # 0 bit
+    
+    # End mark
+    pulses.append(560)
+    
+    # Send signal and blink LED
+    led.value = True
+    ir_tx.send(pulses)
+    led.value = False
 
 # Main loop
 while True:
-    if button.value:  # Button is pressed
-        # Send IR signal
-        ir_tx.send(pulses)
-        # Blink feedback LED
-        led.value = True
-        time.sleep(0.1)
-        led.value = False
-        time.sleep(0.1)
+    if cp.button_a:
+        # Send 'OPEN' command
+        send_code(CODES['OPEN'])
+        # Wait a bit to avoid repeat
+        time.sleep(0.5)
     
-    time.sleep(0.01)
+    elif cp.button_b:
+        # Send 'CLOSE' command
+        send_code(CODES['CLOSE'])
+        # Wait a bit to avoid repeat
+        time.sleep(0.5)
+    
+    time.sleep(0.1)
