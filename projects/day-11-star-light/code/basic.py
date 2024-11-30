@@ -1,5 +1,5 @@
-# Basic light sensor control for Circuit Playground Express
-# Designed for 9-year-old level (pre-loaded program)
+# Basic light-responsive star for Circuit Playground Express
+# Designed for 9-year-old level
 
 import time
 import board
@@ -13,8 +13,8 @@ light_sensor = analogio.AnalogIn(board.A1)
 jewel = neopixel.NeoPixel(board.A2, 7, brightness=0.3)
 
 # Define colors
-WHITE = (255, 255, 255)
-WARM_WHITE = (255, 200, 100)
+WARM_WHITE = (255, 200, 50)   # Cozy, warm color
+COLD_WHITE = (200, 200, 255)  # Cooler, blueish white
 
 # Main loop
 while True:
@@ -22,13 +22,14 @@ while True:
     light = (light_sensor.value / 65535) * 100
     
     # Make star brighter when darker
-    brightness = 1.0 - (light / 100)
-    jewel.brightness = max(0.1, min(1.0, brightness))
-    
-    # Use warmer color when dimmer
-    if brightness > 0.7:
+    if light < 30:  # Dark room
+        jewel.brightness = 0.8
         jewel.fill(WARM_WHITE)
-    else:
-        jewel.fill(WHITE)
+    elif light < 70:  # Normal room
+        jewel.brightness = 0.5
+        jewel.fill(WARM_WHITE)
+    else:  # Bright room
+        jewel.brightness = 0.2
+        jewel.fill(COLD_WHITE)
     
-    time.sleep(0.1)
+    time.sleep(0.1)  # Small delay between readings
