@@ -1,10 +1,11 @@
 # Basic rotary encoder control for Circuit Playground Express
-# Designed for 9-year-old level (pre-loaded program)
+# Designed for 9-year-old level
 
 import time
 import board
 import digitalio
 import neopixel
+from adafruit_circuitplayground import cp
 
 # Set up encoder pins
 clk = digitalio.DigitalInOut(board.A1)
@@ -16,10 +17,15 @@ dt.direction = digitalio.Direction.INPUT
 sw.direction = digitalio.Direction.INPUT
 sw.pull = digitalio.Pull.UP
 
-# Set up NeoPixel Jewel
-jewel = neopixel.NeoPixel(board.A0, 7, brightness=0.3)
+# Set up NeoPixel display (optional)
+display = neopixel.NeoPixel(board.A4, 30, brightness=0.3)
 
-# Define colors
+# Track encoder position and state
+position = 0
+last_clk = clk.value
+brightness = 0.3
+
+# Define some colors
 COLORS = [
     (255, 0, 0),    # Red
     (0, 255, 0),    # Green
@@ -30,29 +36,26 @@ COLORS = [
     (255, 255, 255) # White
 ]
 
-# Track position and settings
-color_index = 0
-brightness = 0.3
-last_clk = clk.value
-
 # Main loop
 while True:
     # Read encoder
     current_clk = clk.value
     if current_clk != last_clk:
         if dt.value != current_clk:
-            color_index = (color_index + 1) % len(COLORS)
-            jewel.fill(COLORS[color_index])
+            position = (position + 1) % len(COLORS)
         else:
-            brightness = max(0.1, min(1.0, brightness - 0.1))
-            jewel.brightness = brightness
-    
-    # Check button press
+            position = (position - 1) % len(COLORS)
+        
+        # Update display color
+        display.fill(COLORS[position])
+        
+    # Check button
     if not sw.value:
-        # Toggle all pixels
-        jewel.fill((0, 0, 0))
+        # Flash current color
+        current_color = COLORS[position]
+        display.fill((0, 0, 0))
         time.sleep(0.2)
-        jewel.fill(COLORS[color_index])
+        display.fill(current_color)
         time.sleep(0.2)
     
     last_clk = current_clk

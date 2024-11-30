@@ -6,99 +6,89 @@ import board
 import digitalio
 import neopixel
 from adafruit_circuitplayground import cp
+import math
 
-# Set up encoder pins
-clk = digitalio.DigitalInOut(board.A1)
-dt = digitalio.DigitalInOut(board.A2)
-sw = digitalio.DigitalInOut(board.A3)
-
-clk.direction = digitalio.Direction.INPUT
-dt.direction = digitalio.Direction.INPUT
-sw.direction = digitalio.Direction.INPUT
-sw.pull = digitalio.Pull.UP
-
-# Set up NeoPixel Jewel
-jewel = neopixel.NeoPixel(board.A0, 7, brightness=0.3)
-
-def rainbow_cycle(pos):
-    """Generate rainbow colors based on position"""
-    if pos < 85:
-        return (pos * 3, 255 - pos * 3, 0)
-    elif pos < 170:
-        pos -= 85
-        return (255 - pos * 3, 0, pos * 3)
-    else:
-        pos -= 170
-        return (0, pos * 3, 255 - pos * 3)
-
-class EncoderControl:
+class DialControl:
     def __init__(self):
-        self.position = 0
-        self.color_pos = 0
-        self.brightness = 0.3
-        self.effect_mode = 0
-        self.last_update = time.monotonic()
-        self.acceleration = 1.0
-    
-    def update_acceleration(self):
-        """Update acceleration based on rotation speed"""
-        current_time = time.monotonic()
-        time_diff = current_time - self.last_update
-        self.acceleration = max(1.0, min(5.0, 0.5 / time_diff))
-        self.last_update = current_time
-    
-    def update(self, direction):
-        """Update based on encoder turn"""
-        self.update_acceleration()
-        step = direction * self.acceleration
+        # Set up encoder pins
+        self.clk = digitalio.DigitalInOut(board.A1)
+        self.dt = digitalio.DigitalInOut(board.A2)
+        self.sw = digitalio.DigitalInOut(board.A3)
         
-        if self.effect_mode == 0:  # Color mode
-            self.color_pos = (self.color_pos + step) % 255
-            return rainbow_cycle(int(self.color_pos))
+        self.clk.direction = digitalio.Direction.INPUT
+        self.dt.direction = digitalio.Direction.INPUT
+        self.sw.direction = digitalio.Direction.INPUT
+        self.sw.pull = digitalio.Pull.UP
+        
+        # Set up display
+        self.display = neopixel.NeoPixel(board.A4, 30, brightness=0.3)
+        
+        # Track state
+        self.last_clk = self.clk.value
+        self.position = 0
+        self.mode = 0  # 0=color, 1=brightness
+        self.brightness = 0.3
+        self.last_button = time.monotonic()
+        self.animation_phase = 0
+    
+    def read_encoder(self):
+        """Read encoder movement"""
+        current_clk = self.clk.value
+        if current_clk != self.last_clk:
+            if self.dt.value != current_clk:
+                direction = 1
+            else:
+                direction = -1
+            self.update_from_encoder(direction)
+        self.last_clk = current_clk
+    
+    def update_from_encoder(self, direction):
+        """Handle encoder movement"""
+        if self.mode == 0:  # Color mode
+            self.position = (self.position + direction) % 255
+            self.update_color()
         else:  # Brightness mode
             self.brightness = max(0.1, min(1.0, 
-                self.brightness + step * 0.05))
-            return None
+                self.brightness + direction * 0.05))
+            self.display.brightness = self.brightness
     
-    def button_press(self):
-        """Handle button press"""
-        self.effect_mode = (self.effect_mode + 1) % 2
-        return self.effect_mode
+    def check_button(self):
+        """Check for button press"""
+        if not self.sw.value:
+            current = time.monotonic()
+            if current - self.last_button > 0.2:  # Debounce
+                self.mode = (self.mode + 1) % 2
+                self.last_button = current
+                return True
+        return False
+    
+    def update_color(self):
+        """Update display color based on position"""
+        # Create smooth rainbow effect
+        r = int((math.sin(self.position / 40.0) + 1.0) * 127)
+        g = int((math.sin(self.position / 40.0 + 2.094) + 1.0) * 127)
+        b = int((math.sin(self.position / 40.0 + 4.188) + 1.0) * 127)
+        self.display.fill((r, g, b))
+    
+    def run_animation(self):
+        """Run animation when button pressed"""
+        # Spinning animation
+        for i in range(len(self.display)):
+            self.display.fill((0, 0, 0))
+            self.display[i] = (255, 255, 255)
+            time.sleep(0.05)
+    
+    def update(self):
+        """Main update function"""
+        self.read_encoder()
+        if self.check_button():
+            self.run_animation()
+            self.update_color()
 
-# Initialize controller
-controller = EncoderControl()
-last_clk = clk.value
+# Create controller
+control = DialControl()
 
 # Main loop
 while True:
-    # Read encoder
-    current_clk = clk.value
-    if current_clk != last_clk:
-        if dt.value != current_clk:
-            direction = 1
-        else:
-            direction = -1
-            
-        # Update controller
-        color = controller.update(direction)
-        if color:
-            jewel.fill(color)
-        jewel.brightness = controller.brightness
-        
-        # Also update CP LEDs for feedback
-        cp.pixels.fill(color if color else (0, 0, 0))
-        cp.pixels.brightness = controller.brightness
-    
-    # Check button press
-    if not sw.value:
-        mode = controller.button_press()
-        # Flash to indicate mode change
-        for _ in range(mode + 1):
-            jewel.brightness = 0
-            time.sleep(0.1)
-            jewel.brightness = controller.brightness
-            time.sleep(0.1)
-        time.sleep(0.2)  # Debounce
-    
-    last_clk = current_clk
+    control.update()
     time.sleep(0.01)
