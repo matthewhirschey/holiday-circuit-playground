@@ -1,157 +1,146 @@
 # Day 14: Magnetic Holiday Cards
 
 ## Overview
-Today we'll create holiday cards that light up when you open them using magnetic reed switches! These switches respond to magnets, making them perfect for creating interactive cards. The younger group will learn about magnetic detection, while the older group will program custom responses.
+Today we'll create holiday cards that light up when you open them using a magnetic contact switch! The switch has two parts - one part stays on your card while the other moves away when opened. We'll learn how to use this to trigger lights and sounds.
 
 ## Materials Needed
 - Circuit Playground Express
-- Magnetic Reed Switch
-- Small Magnet
-- NeoPixel Strip/Jewel
-- Mini Breadboard
-- Alligator Clips
-- Cardstock
-- Decorating supplies
+- Magnetic Contact Switch (door sensor)
+- NeoPixel Strip or Jewel (from previous days)
+- Choice of connection method:
+  - 2 Alligator clips (for 9-year-olds)
+  - OR Mini breadboard and jumper wires (for 13-year-olds)
+- Cardstock (sturdy type for cards)
+- Tape or mounting supplies
+- Decorating materials
 
-## Instructions for Age 9
+## Understanding Your Magnetic Switch
+- Look at your switch:
+  - Switch part (has wires)
+  - Magnet part (separate piece)
+  - They work together!
+- The switch has:
+  - Two white wires
+  - No polarity (either wire works for either connection)
+  - Plastic mounting cases
 
-1. Create Your Card:
-   - Fold cardstock to make a card
-   - Design your holiday message/art
-   - Plan where lights will go
-   - Mark where switch will hide
+## Instructions for Age 9 (Alligator Clip Method)
 
-2. Connect Reed Switch:
-   - Reed switch has two wires
-   - Connect one wire to GND
-   - Connect other wire to pin A1
+1. Prepare Your Card:
+   - Fold sturdy cardstock in half
+   - Plan where switch will go (near fold)
+   - Plan where magnet will go (opposite side)
+   - Draw or decorate your design
 
-3. Add NeoPixels:
-   - Connect power to 3.3V
-   - Connect ground to GND
-   - Connect data to pin A2
+2. Connect Switch:
+   - Clip one wire to Circuit Playground GND
+   - Clip other wire to Circuit Playground A1
+   - Test clips are secure
 
-4. Place Components:
-   - Hide reed switch in spine of card
-   - Place magnet on opposite side
-   - Arrange NeoPixels behind design
-   - When card opens, magnet moves away!
+3. Mount Components:
+   - Tape switch part to one side
+   - Tape magnet part to other side
+   - Make sure they line up when closed
+   - Keep wires neat with tape
 
-5. Test Your Card:
-   - Open card - lights turn on
-   - Close card - lights turn off
-   - Try different open angles
+4. Test Your Card:
+   - Close card - lights off
+   - Open card - lights on!
+   - Try different opening angles
 
-## Instructions for Age 13
+## Instructions for Age 13 (Breadboard Method)
 
-1. Hardware Setup:
-   - Follow basic assembly steps above
-   - Consider multiple switches/triggers
+1. Breadboard Setup:
+   - Set up power rails:
+     - Red jumper to 3.3V
+     - Black jumper to GND
+   - Place switch wires in breadboard:
+     - One wire to GND rail
+     - Other wire to empty row
+   - Connect empty row to A1 with jumper
 
-2. Basic Switch Programming:
+2. Create Interactive Card:
+   - Design card layout
+   - Plan component placement
+   - Mount switch and magnet
+   - Route wires cleanly
+
+3. Basic Code Example:
 ```python
 import time
 import board
 import digitalio
 import neopixel
 
-# Set up reed switch
-reed = digitalio.DigitalInOut(board.A1)
-reed.direction = digitalio.Direction.INPUT
-reed.pull = digitalio.Pull.UP
+# Set up the magnetic switch
+switch = digitalio.DigitalInOut(board.A1)
+switch.direction = digitalio.Direction.INPUT
+switch.pull = digitalio.Pull.UP
 
-# Set up NeoPixels
+# Set up NeoPixels (if using)
 pixels = neopixel.NeoPixel(board.A2, 8, brightness=0.3)
 
 # Main loop
 while True:
-    if not reed.value:  # Card is open
+    if not switch.value:  # Card is open
         pixels.fill((255, 255, 255))  # Turn on lights
     else:
         pixels.fill((0, 0, 0))       # Turn off lights
     time.sleep(0.1)
 ```
 
-3. Advanced Features:
-```python
-class MagneticCard:
-    def __init__(self):
-        self.switch = digitalio.DigitalInOut(board.A1)
-        self.switch.direction = digitalio.Direction.INPUT
-        self.switch.pull = digitalio.Pull.UP
-        
-        self.pixels = neopixel.NeoPixel(board.A2, 8, brightness=0.3)
-        
-        self.open_time = 0
-        self.animation_phase = 0
-        self.is_open = False
-    
-    def check_state(self):
-        """Check if card state has changed"""
-        current_state = not self.switch.value
-        if current_state != self.is_open:
-            self.is_open = current_state
-            if self.is_open:
-                self.open_time = time.monotonic()
-                return True
-        return False
-    
-    def rainbow_welcome(self):
-        """Create rainbow effect when card opens"""
-        for i in range(8):
-            pixel_hue = (i * 32 + self.animation_phase) % 256
-            pixels[i] = self.wheel(pixel_hue)
-        self.animation_phase = (self.animation_phase + 1) % 256
-    
-    def wheel(self, pos):
-        """Color wheel for rainbow effect"""
-        if pos < 85:
-            return (pos * 3, 255 - pos * 3, 0)
-        elif pos < 170:
-            pos -= 85
-            return (255 - pos * 3, 0, pos * 3)
-        else:
-            pos -= 170
-            return (0, pos * 3, 255 - pos * 3)
-```
+## Mounting Tips
+
+1. Switch Placement:
+   - Mount near card fold
+   - Keep wires from bending sharply
+   - Use tape on plastic housing
+   - Don't cover sensor area
+
+2. Magnet Placement:
+   - Line up with switch
+   - Test alignment
+   - Secure firmly
+   - Mark for proper closing
 
 ## Testing and Troubleshooting
 
 ### For 9-Year-Olds:
-1. Lights Not Working?
-   - Check magnet position
-   - Verify switch alignment
-   - Test connections
-   - Try different angles
+1. Not Working?
+   - Check clip connections
+   - Verify magnet alignment
+   - Test different positions
+   - Make sure card closes fully
 
 ### For 13-Year-Olds:
-1. Code Issues?
-   - Debug switch readings
-   - Test timing values
-   - Verify pin assignments
-   - Check animations
+1. Circuit Issues?
+   - Check breadboard connections
+   - Verify code is loaded
+   - Test switch position
+   - Debug with print statements
 
-## Extensions
+## Project Ideas
 
 ### For 9-Year-Olds:
-1. Add more lights
-2. Try different patterns
-3. Create multiple triggers
+1. Light-up greeting card
+2. Secret message revealer
+3. Musical holiday card
+4. Magic door indicator
 
 ### For 13-Year-Olds:
-1. Add sound effects
-2. Create complex animations
-3. Add timing features
-4. Make multi-page cards
+1. Multi-zone card with patterns
+2. Sound and light show
+3. Holiday door monitor
+4. Sequential light display
 
 ## Safety Notes
-- Keep magnets away from electronics
-- Handle connections carefully
-- Mind sharp edges
-- Secure all components
+- Handle magnets carefully
+- Don't bend wires sharply
+- Keep wire connections neat
+- Mind small parts
 
 ## Parent Notes
-- Help with component placement
-- Guide proper folding
-- Assist with connections
-- Support decoration process
+- Help with mounting
+- Guide wire handling
+- Assist with testing
+- Support creativity
