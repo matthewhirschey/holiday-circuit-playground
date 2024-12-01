@@ -1,187 +1,134 @@
 # Day 17: Weather at the North Pole
 
 ## Overview
-Today we'll create a temperature and humidity monitor for the North Pole! Using a temperature/humidity sensor and our Circuit Playground Express, we'll measure and display weather conditions. The younger group will create a basic weather station, while the older group will program advanced visualizations.
+Today we'll create a temperature and humidity monitor using the AM2301B sensor! This pre-wired sensor will help us measure the North Pole's weather conditions. The younger group will learn about environmental sensing, while the older group will program advanced data displays.
 
 ## Materials Needed
 - Circuit Playground Express
-- DHT22 Temperature/Humidity Sensor
-- NeoPixel Strip (from previous projects)
+- AM2301B Temperature/Humidity Sensor
 - Mini Breadboard
-- Alligator Clips
+- Jumper Wires
+- Optional: NeoPixel strip for display
+
+## Understanding Your Sensor
+- Look at your AM2301B sensor:
+  - Red wire (Power: 3.3V)
+  - Black wire (Ground)
+  - White wire (Data)
+  - Black case protects the sensor
+  - Small holes for mounting
 
 ## Instructions for Age 9
 
-1. Meet Your Weather Sensor:
-   - Look at the DHT22 sensor - it has 3 pins:
-     - VCC (power)
-     - DATA (signal)
-     - GND (ground)
-   - The holes in the sensor let it measure air
+1. Breadboard Setup:
+   - Power rails (like previous days):
+     - Red jumper wire from 3.3V to + rail
+     - Black jumper wire from GND to - rail
 
-2. Connect the Sensor:
-   - VCC to 3.3V
-   - GND to GND
-   - DATA to A1
+2. Connect Sensor:
+   - Place wires in breadboard:
+     - Red wire to + rail (3.3V)
+     - Black wire to - rail (GND)
+     - White wire in empty row
+   - Connect white wire row to A1 with jumper
 
-3. Add NeoPixel Strip:
-   - Power to 3.3V
-   - Ground to GND
-   - Data to A2
-
-4. Test Your Weather Station:
-   - Blue lights = cold
-   - Green lights = comfortable
-   - Red lights = warm
-   - More lights = more humid
+3. Test Your Sensor:
+   - Watch temperature change:
+     - Cup hands around sensor - warmer!
+     - Blow on sensor - cooler!
+   - LEDs show temperature:
+     - Blue = cold
+     - Green = comfortable
+     - Red = warm
 
 ## Instructions for Age 13
 
-1. Hardware Setup:
-   - Follow basic connection instructions
+1. Advanced Setup:
+   - Follow basic connection steps
    - Consider sensor placement
+   - Plan data display method
 
-2. Basic Weather Code:
+2. Basic Sensor Code:
 ```python
 import time
 import board
-import adafruit_dht
-import neopixel
+import adafruit_ahtx0
 
-# Set up temperature sensor
-dht = adafruit_dht.DHT22(board.A1)
-
-# Set up NeoPixel strip
-pixels = neopixel.NeoPixel(board.A2, 10, brightness=0.3)
-
-def get_weather():
-    """Read temperature and humidity"""
-    try:
-        temperature = dht.temperature
-        humidity = dht.humidity
-        return temperature, humidity
-    except RuntimeError:
-        return None, None
-
-def temp_to_color(temp):
-    """Convert temperature to color"""
-    if temp < 0:
-        return (0, 0, 255)  # Blue for cold
-    elif temp < 20:
-        return (0, 255, 0)  # Green for comfortable
-    else:
-        return (255, 0, 0)  # Red for warm
+# Create the AHT20 sensor object
+i2c = board.I2C()
+sensor = adafruit_ahtx0.AHTx0(i2c)
 
 # Main loop
 while True:
-    temp, humidity = get_weather()
-    if temp is not None:
-        color = temp_to_color(temp)
-        # Show temperature with color
-        pixels.fill(color)
-        # Show humidity with number of pixels
-        num_lit = int(humidity / 10)  # 0-100% maps to 0-10 LEDs
-        for i in range(10):
-            if i >= num_lit:
-                pixels[i] = (0, 0, 0)
-    
-    time.sleep(2)  # DHT22 needs 2s between readings
+    temp = sensor.temperature
+    humidity = sensor.relative_humidity
+    print(f"Temp: {temp:.1f} °C")
+    print(f"Humidity: {humidity:.1f} %")
+    time.sleep(1)
 ```
 
-3. Advanced Features:
+3. Temperature Display:
 ```python
-class WeatherStation:
-    def __init__(self):
-        self.dht = adafruit_dht.DHT22(board.A1)
-        self.pixels = neopixel.NeoPixel(board.A2, 10, brightness=0.3)
-        self.temp_history = [20] * 10  # Store last 10 readings
-        self.humid_history = [50] * 10
-        
-    def get_smoothed_readings(self):
-        """Get averaged sensor readings"""
-        try:
-            temp = self.dht.temperature
-            humid = self.dht.humidity
-            
-            self.temp_history = self.temp_history[1:] + [temp]
-            self.humid_history = self.humid_history[1:] + [humid]
-            
-            avg_temp = sum(self.temp_history) / len(self.temp_history)
-            avg_humid = sum(self.humid_history) / len(self.humid_history)
-            
-            return avg_temp, avg_humid
-        except RuntimeError:
-            return None, None
-    
-    def temp_to_gradient(self, temp):
-        """Create color gradient based on temperature"""
-        if temp < 0:
-            # Cold: white to blue
-            ratio = min(1.0, abs(temp) / 10)
-            return (int(255 * (1 - ratio)), int(255 * (1 - ratio)), 255)
-        elif temp < 20:
-            # Comfortable: blue to green
-            ratio = temp / 20
-            return (0, int(255 * ratio), int(255 * (1 - ratio)))
-        else:
-            # Warm: green to red
-            ratio = min(1.0, (temp - 20) / 15)
-            return (int(255 * ratio), int(255 * (1 - ratio)), 0)
-    
-    def display_weather(self):
-        """Create weather visualization"""
-        temp, humid = self.get_smoothed_readings()
-        if temp is not None:
-            # Temperature affects color
-            color = self.temp_to_gradient(temp)
-            
-            # Humidity affects animation
-            for i in range(10):
-                if i < (humid / 10):
-                    # Create shimmering effect for humidity
-                    brightness = (math.sin(time.monotonic() * 2 + i) + 1) / 2
-                    pixels[i] = tuple(int(c * brightness) for c in color)
-                else:
-                    pixels[i] = (0, 0, 0)
+def temp_to_color(temp):
+    """Convert temperature to color"""
+    if temp < 18:  # Cold
+        return (0, 0, 255)  # Blue
+    elif temp < 25:  # Comfortable
+        return (0, 255, 0)  # Green
+    else:  # Warm
+        return (255, 0, 0)  # Red
 ```
 
 ## Testing and Troubleshooting
 
 ### For 9-Year-Olds:
-1. Sensor Not Working?
-   - Check connections
-   - Wait between readings
-   - Keep sensor steady
-   - Avoid touching sensor
+1. No Readings?
+   - Check wire connections
+   - Verify power (3.3V)
+   - Reset Circuit Playground
+   - Wait for sensor startup
 
 ### For 13-Year-Olds:
-1. Reading Issues?
-   - Verify timing
-   - Check error handling
-   - Test averaging
-   - Debug gradients
+1. Data Issues?
+   - Check I2C address
+   - Verify library import
+   - Test sensor placement
+   - Debug readings
 
-## Extensions
+## Sensor Tips
+
+1. Best Practices:
+   - Keep sensor clean
+   - Avoid direct heat/cold
+   - Allow air circulation
+   - Give time to stabilize
+
+2. Reading Quality:
+   - More accurate when stable
+   - Takes time to adjust
+   - Humidity affects temperature
+
+## Extension Ideas
 
 ### For 9-Year-Olds:
-1. Add temperature zones
-2. Create weather alerts
-3. Track daily changes
+1. Add color patterns
+2. Track temperature changes
+3. Make weather alerts
 
 ### For 13-Year-Olds:
-1. Add data logging
-2. Create weather forecasts
-3. Add trend analysis
-4. Make weather games
+1. Log data over time
+2. Create graphs
+3. Add condition alerts
+4. Make weather predictions
 
 ## Safety Notes
-- Handle sensor gently
-- Keep sensor dry
-- Mind the connections
-- Allow proper ventilation
+- Don't get sensor wet
+- Handle wires carefully
+- Keep connections secure
+- Mind the sensor case
 
 ## Parent Notes
-- Help with sensor placement
-- Guide proper handling
+- Help with wire identification
+- Guide sensor placement
 - Assist with testing
-- Support exploration
+- Support data analysis
