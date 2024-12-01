@@ -1,52 +1,63 @@
 # Day 16: Santa's Distance Detector
 
 ## Overview
-Today we'll create a distance detector using an ultrasonic sensor! This sensor measures distance by sending out sound waves we can't hear. We'll use it to detect when something (like Santa!) is nearby. The younger group will create a basic proximity alert, while the older group will program distance-based animations.
+Today we'll build a distance sensor using the HC-SR04 ultrasonic sensor! This sensor sends out sound waves we can't hear and measures how long they take to bounce back. We'll learn how to set it up safely and use it to detect when something (or someone!) is nearby.
 
 ## Materials Needed
 - Circuit Playground Express
-- Ultrasonic Distance Sensor (HC-SR04)
-- NeoPixel Strip (from Day 15)
+- HC-SR04 Ultrasonic Distance Sensor
+- 2 x 10K resistors (included with sensor)
 - Mini Breadboard
-- Alligator Clips
-- Decorative housing materials
+- Jumper Wires (at least 6)
+- Optional: NeoPixel strip for display
+
+## Important Safety Note
+The HC-SR04 runs on 5V and its Echo pin outputs 5V signals. We MUST use the included voltage divider (two 10K resistors) to protect the Circuit Playground Express, which can only handle 3.3V inputs!
+
+## Understanding Your Sensor
+1. HC-SR04 has 4 pins:
+   - VCC: Power input (needs 5V)
+   - Trig: Trigger input (3.3V OK)
+   - Echo: Echo output (needs voltage divider!)
+   - GND: Ground
+
+2. Voltage Divider:
+   - Two 10K resistors in series
+   - Converts 5V Echo output to safe 2.5V
+   - REQUIRED to protect your Circuit Playground
 
 ## Instructions for Age 9
 
-1. Meet Your Distance Sensor:
-   - Look at the sensor - it has 4 pins:
-     - VCC (power)
-     - TRIG (trigger)
-     - ECHO (receive)
-     - GND (ground)
-   - The two 'eyes' are:
-     - One sends the sound
-     - One listens for it to bounce back
+1. Breadboard Setup:
+   - Power rails:
+     - Red wire from 5V to + rail (Note: 5V this time!)
+     - Black wire from GND to - rail
 
-2. Connect the Sensor:
-   - VCC to 3.3V
-   - GND to GND
-   - TRIG to A1
-   - ECHO to A2
+2. Place Components:
+   - Put HC-SR04 at one end of breadboard
+   - Place two 10K resistors in series:
+     - First resistor: one end to Echo pin
+     - Second resistor: one end to - rail
+     - Connection between resistors goes to A1
 
-3. Add NeoPixel Strip:
-   - Power to 3.3V
-   - Ground to GND
-   - Data to A3
+3. Connect Sensor:
+   - VCC pin to + rail (5V)
+   - GND pin to - rail
+   - Trig pin to A2
+   - Echo pin through voltage divider to A1
 
-4. Test Your Detector:
-   - Move your hand closer:
-     - More lights turn on
-     - Colors change
-   - Move your hand away:
-     - Fewer lights
-     - Different colors
+4. Test Your Sensor:
+   - Wave hand in front: lights change
+   - Move closer: more lights
+   - Move away: fewer lights
+   - Try different distances!
 
 ## Instructions for Age 13
 
-1. Hardware Setup:
-   - Follow basic connection instructions
-   - Consider sensor placement
+1. Advanced Setup:
+   - Follow basic wiring steps carefully
+   - Verify voltage divider placement
+   - Consider sensor positioning
 
 2. Basic Distance Code:
 ```python
@@ -55,143 +66,99 @@ import board
 import digitalio
 import neopixel
 
-# Set up trigger and echo pins
-trigger = digitalio.DigitalInOut(board.A1)
+# Set up trigger pin
+trigger = digitalio.DigitalInOut(board.A2)
 trigger.direction = digitalio.Direction.OUTPUT
 
-echo = digitalio.DigitalInOut(board.A2)
+# Set up echo pin
+echo = digitalio.DigitalInOut(board.A1)
 echo.direction = digitalio.Direction.INPUT
-
-# Set up NeoPixel strip
-pixels = neopixel.NeoPixel(board.A3, 10, brightness=0.3)
 
 def measure_distance():
     """Get distance measurement in cm"""
     # Send trigger pulse
     trigger.value = True
-    time.sleep(0.00001)  # 10 microseconds
+    time.sleep(0.00001)    # 10 microseconds
     trigger.value = False
     
-    # Wait for echo
-    pulse_start = time.monotonic()
-    pulse_end = pulse_start
-    
     # Wait for echo to start
+    timeout = time.monotonic() + 0.1   # 100ms timeout
     while not echo.value:
-        pulse_start = time.monotonic()
-        if pulse_start - pulse_end > 0.1:
+        if time.monotonic() > timeout:
             return None
+    start = time.monotonic()
     
     # Wait for echo to end
+    timeout = time.monotonic() + 0.1   # 100ms timeout
     while echo.value:
-        pulse_end = time.monotonic()
-        if pulse_end - pulse_start > 0.1:
+        if time.monotonic() > timeout:
             return None
+    end = time.monotonic()
     
-    # Calculate distance
-    duration = pulse_end - pulse_start
-    distance = duration * 17150  # Speed of sound/2
-    
-    return distance
+    # Calculate distance (speed of sound / 2)
+    return ((end - start) * 34300) / 2
 
 # Main loop
 while True:
     distance = measure_distance()
     if distance is not None:
-        # Map distance to pixels
-        num_pixels = min(10, int(distance / 10))
-        pixels.fill((0, 0, 0))
-        for i in range(num_pixels):
-            pixels[i] = (0, 255, 0)
-    
+        print(f"Distance: {distance:.1f} cm")
+        # Update display based on distance
     time.sleep(0.1)
 ```
 
-3. Advanced Features:
-```python
-class DistanceDetector:
-    def __init__(self):
-        self.trigger = digitalio.DigitalInOut(board.A1)
-        self.trigger.direction = digitalio.Direction.OUTPUT
-        
-        self.echo = digitalio.DigitalInOut(board.A2)
-        self.echo.direction = digitalio.Direction.INPUT
-        
-        self.pixels = neopixel.NeoPixel(board.A3, 10, brightness=0.3)
-        
-        self.distance_history = [100] * 5  # Store last 5 readings
-        self.alert_threshold = 30  # cm
-        self.max_distance = 200  # cm
-    
-    def get_smoothed_distance(self):
-        """Get distance with moving average"""
-        distance = self.measure_distance()
-        if distance is not None:
-            self.distance_history = self.distance_history[1:] + [distance]
-            return sum(self.distance_history) / len(self.distance_history)
-        return None
-    
-    def map_distance_to_color(self, distance):
-        """Convert distance to color"""
-        if distance < self.alert_threshold:
-            # Red when close
-            return (255, 0, 0)
-        elif distance < self.max_distance:
-            # Fade from yellow to green
-            green = min(255, int(255 * (distance / self.max_distance)))
-            return (255 - green, green, 0)
-        else:
-            return (0, 255, 0)
-    
-    def proximity_alert(self):
-        """Create distance-based animation"""
-        distance = self.get_smoothed_distance()
-        if distance is not None:
-            color = self.map_distance_to_color(distance)
-            # Fill strip based on distance
-            num_pixels = min(10, int(10 * (1 - distance / self.max_distance)))
-            self.pixels.fill((0, 0, 0))
-            for i in range(num_pixels):
-                self.pixels[i] = color
+## Voltage Divider Details
+
+1. Resistor Placement:
+```
+Echo Pin ----[10K]----┐----[10K]----GND
+                      │
+                      └----A1 (CPX)
 ```
 
-## Testing and Troubleshooting
+2. Why It's Needed:
+   - Echo pin outputs 5V
+   - CPX can only handle 3.3V
+   - Divider makes it safe
+   - Must not skip this step!
+
+## Testing and Calibration
 
 ### For 9-Year-Olds:
 1. Sensor Not Working?
-   - Check all connections
-   - Verify power
-   - Try different distances
-   - Keep sensor steady
+   - Check 5V power connection
+   - Verify resistor placement
+   - Clean sensor eyes
+   - Test different distances
 
 ### For 13-Year-Olds:
 1. Reading Issues?
-   - Debug timing values
-   - Check calculation
-   - Test sensor aim
-   - Verify thresholds
+   - Debug with print statements
+   - Check timing values
+   - Verify voltage divider
+   - Test measurement accuracy
 
-## Extensions
+## Extension Ideas
 
 ### For 9-Year-Olds:
-1. Add sound alerts
-2. Create distance zones
-3. Try different displays
+1. Make distance alerts
+2. Add sound feedback
+3. Create light patterns
 
 ### For 13-Year-Olds:
-1. Add multiple sensors
-2. Create 3D tracking
-3. Add motion prediction
-4. Make interactive games
+1. Add averaging
+2. Create data logging
+3. Make interactive displays
+4. Add motion tracking
 
-## Safety Notes
-- Handle sensor carefully
-- Don't touch sensor eyes
+## Safety Reminders
+- ALWAYS use voltage divider
+- Don't connect Echo directly
+- Use 5V for power
 - Keep connections secure
-- Mind the ultrasonic waves
 
 ## Parent Notes
-- Help with initial setup
-- Guide sensor handling
-- Assist with testing
-- Support experimentation
+- Verify voltage divider setup
+- Help with resistor placement
+- Guide proper testing
+- Monitor connections
