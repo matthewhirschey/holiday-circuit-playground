@@ -1,59 +1,65 @@
-# Basic distance sensor control for Circuit Playground Express
-# Designed for 9-year-old level (pre-loaded program)
+# Basic distance detector for Circuit Playground Express
+# Designed for 9-year-old level
 
 import time
 import board
 import digitalio
-import neopixel
+from adafruit_circuitplayground import cp
 
-# Set up the distance sensor
-trigger = digitalio.DigitalInOut(board.A1)
+# Set up trigger pin on A2
+trigger = digitalio.DigitalInOut(board.A2)
 trigger.direction = digitalio.Direction.OUTPUT
 
-echo = digitalio.DigitalInOut(board.A2)
+# Set up echo pin on A1 (through voltage divider!)
+echo = digitalio.DigitalInOut(board.A1)
 echo.direction = digitalio.Direction.INPUT
 
-# Set up NeoPixel strip
-pixels = neopixel.NeoPixel(board.A3, 10, brightness=0.3)
-
-# Define colors
-RED = (255, 0, 0)
-YELLOW = (255, 255, 0)
-GREEN = (0, 255, 0)
-OFF = (0, 0, 0)
-
-def measure_distance():
-    """Simple distance measurement"""
+def get_distance():
+    """Measure distance safely with timeouts"""
+    # Send trigger pulse
     trigger.value = True
-    time.sleep(0.00001)
+    time.sleep(0.00001)    # 10 microseconds
     trigger.value = False
     
-    # Wait for echo
+    # Wait for echo to start (with timeout)
+    timeout = time.monotonic() + 0.1
     while not echo.value:
-        pass
-    start = time.monotonic()
+        if time.monotonic() > timeout:
+            return None
+    pulse_start = time.monotonic()
     
+    # Wait for echo to end (with timeout)
+    timeout = time.monotonic() + 0.1
     while echo.value:
-        pass
-    end = time.monotonic()
+        if time.monotonic() > timeout:
+            return None
+    pulse_end = time.monotonic()
     
-    return (end - start) * 17150
+    # Calculate distance
+    distance = ((pulse_end - pulse_start) * 34300) / 2
+    
+    # Only return reasonable values
+    if distance < 2 or distance > 400:
+        return None
+    return distance
 
 # Main loop
 while True:
-    try:
-        distance = measure_distance()
+    # Get distance measurement
+    distance = get_distance()
+    
+    if distance is not None:
+        # Light up pixels based on distance
+        pixels_to_light = min(10, int(distance / 30))
         
-        # Clear strip
-        pixels.fill(OFF)
-        
-        if distance < 30:  # Close
-            pixels.fill(RED)
-        elif distance < 100:  # Medium
-            pixels.fill(YELLOW)
-        else:  # Far
-            pixels.fill(GREEN)
-    except:
-        pixels.fill(OFF)
+        # Update Circuit Playground LEDs
+        for i in range(10):
+            if i < pixels_to_light:
+                cp.pixels[i] = (0, 255, 0)  # Green
+            else:
+                cp.pixels[i] = (0, 0, 0)    # Off
+    else:
+        # Show error with red light
+        cp.pixels.fill((10, 0, 0))  # Dim red
     
     time.sleep(0.1)

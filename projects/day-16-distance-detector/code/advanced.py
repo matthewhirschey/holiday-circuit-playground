@@ -1,119 +1,130 @@
-# Advanced distance sensor control for Circuit Playground Express
+# Advanced distance detector for Circuit Playground Express
 # Designed for 13-year-old level
 
 import time
 import board
 import digitalio
-import neopixel
-import random
+import array
+import math
 from adafruit_circuitplayground import cp
 
 class DistanceDetector:
     def __init__(self):
-        # Set up distance sensor
-        self.trigger = digitalio.DigitalInOut(board.A1)
+        # Set up trigger pin
+        self.trigger = digitalio.DigitalInOut(board.A2)
         self.trigger.direction = digitalio.Direction.OUTPUT
         
-        self.echo = digitalio.DigitalInOut(board.A2)
+        # Set up echo pin (through voltage divider!)
+        self.echo = digitalio.DigitalInOut(board.A1)
         self.echo.direction = digitalio.Direction.INPUT
         
-        # Set up NeoPixel strip
-        self.pixels = neopixel.NeoPixel(board.A3, 10, brightness=0.3)
+        # Distance tracking
+        self.history = array.array('f', [0] * 5)  # Last 5 readings
+        self.history_index = 0
+        self.valid_reading_count = 0
         
-        # Configuration
-        self.distance_history = [100] * 5
-        self.alert_threshold = 30  # cm
-        self.max_distance = 200  # cm
-        self.animation_phase = 0
+        # Animation
+        self.alert_phase = 0
     
     def measure_distance(self):
-        """Get precise distance measurement"""
+        """Get distance measurement with safety checks"""
         try:
             # Send trigger pulse
             self.trigger.value = True
-            time.sleep(0.00001)
+            time.sleep(0.00001)    # 10 microseconds
             self.trigger.value = False
             
-            # Wait for echo with timeout
-            start = time.monotonic()
+            # Wait for echo to start (with timeout)
+            timeout = time.monotonic() + 0.1
             while not self.echo.value:
-                if time.monotonic() - start > 0.1:
+                if time.monotonic() > timeout:
                     return None
             pulse_start = time.monotonic()
             
+            # Wait for echo to end (with timeout)
+            timeout = time.monotonic() + 0.1
             while self.echo.value:
-                if time.monotonic() - pulse_start > 0.1:
+                if time.monotonic() > timeout:
                     return None
             pulse_end = time.monotonic()
             
             # Calculate distance
-            duration = pulse_end - pulse_start
-            distance = duration * 17150
+            distance = ((pulse_end - pulse_start) * 34300) / 2
             
-            return min(self.max_distance, distance)
-        except:
+            # Validate reading
+            if distance < 2 or distance > 400:
+                return None
+                
+            return distance
+            
+        except RuntimeError:
             return None
     
-    def get_smoothed_distance(self):
-        """Apply moving average to distance readings"""
-        distance = self.measure_distance()
+    def update_history(self, distance):
+        """Update rolling average of readings"""
         if distance is not None:
-            self.distance_history = self.distance_history[1:] + [distance]
-            return sum(self.distance_history) / len(self.distance_history)
-        return None
+            self.history[self.history_index] = distance
+            self.history_index = (self.history_index + 1) % 5
+            if self.valid_reading_count < 5:
+                self.valid_reading_count += 1
     
-    def map_distance_to_color(self, distance):
-        """Create smooth color transition based on distance"""
-        if distance < self.alert_threshold:
-            # Pulse red when very close
-            intensity = (math.sin(self.animation_phase) + 1) / 2
-            return (int(255 * intensity), 0, 0)
-        elif distance < self.max_distance:
-            # Gradient from yellow to green
-            ratio = (distance - self.alert_threshold) / \
-                    (self.max_distance - self.alert_threshold)
-            return (int(255 * (1 - ratio)), int(255 * ratio), 0)
-        else:
-            return (0, 255, 0)
+    def get_average_distance(self):
+        """Get smoothed distance value"""
+        if self.valid_reading_count == 0:
+            return None
+        return sum(self.history) / self.valid_reading_count
     
-    def update_animation(self):
-        """Update animation state"""
-        self.animation_phase = (self.animation_phase + 0.2) % (2 * math.pi)
-    
-    def display_distance(self):
-        """Show distance with animated display"""
-        distance = self.get_smoothed_distance()
-        if distance is not None:
-            # Get base color
-            color = self.map_distance_to_color(distance)
-            
-            # Calculate number of pixels to light
-            num_pixels = min(10, int(10 * (1 - distance / self.max_distance)))
-            
-            # Create animation
-            self.pixels.fill((0, 0, 0))
-            for i in range(num_pixels):
-                self.pixels[i] = color
-            
-            # Add sparkle effect when close
-            if distance < self.alert_threshold and random.random() < 0.3:
-                sparkle_pixel = random.randint(0, 9)
-                self.pixels[sparkle_pixel] = (255, 255, 255)
-        else:
+    def show_distance_neopixels(self, distance):
+        """Display distance on NeoPixels with effects"""
+        if distance is None:
             # Error indication
-            self.pixels.fill((50, 0, 0))
+            cp.pixels.fill((10, 0, 0))  # Dim red
+            return
+        
+        # Calculate display parameters
+        max_distance = 200  # cm
+        brightness = max(0.1, min(1.0, 1.0 - (distance / max_distance)))
+        pixels_to_light = min(10, int(distance / 20))
+        
+        # Create color based on distance
+        if distance < 30:
+            color = (255, 0, 0)  # Red for close
+        elif distance < 100:
+            color = (255, 255, 0)  # Yellow for medium
+        else:
+            color = (0, 255, 0)  # Green for far
+        
+        # Update pixels
+        for i in range(10):
+            if i < pixels_to_light:
+                cp.pixels[i] = tuple(int(c * brightness) for c in color)
+            else:
+                cp.pixels[i] = (0, 0, 0)
+    
+    def run_detector(self):
+        """Main update function"""
+        # Get new reading
+        distance = self.measure_distance()
+        
+        # Update tracking
+        self.update_history(distance)
+        avg_distance = self.get_average_distance()
+        
+        # Update display
+        self.show_distance_neopixels(avg_distance)
+        
+        # Print debug info
+        if avg_distance is not None:
+            print(f"Distance: {avg_distance:.1f} cm")
+        
+        # Optional: sound alert for close objects
+        if avg_distance is not None and avg_distance < 30:
+            cp.play_tone(1000 + (30 - avg_distance) * 20, 0.1)
 
 # Create detector
 detector = DistanceDetector()
 
 # Main loop
 while True:
-    detector.update_animation()
-    detector.display_distance()
-    
-    # Add sound when very close
-    distance = detector.get_smoothed_distance()
-    if distance is not None and distance < detector.alert_threshold:
-        cp.play_tone(440 + (detector.alert_threshold - distance) * 10, 0.1)
-    
+    detector.run_detector()
     time.sleep(0.05)
