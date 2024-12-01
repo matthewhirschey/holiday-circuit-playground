@@ -1,38 +1,25 @@
 # Basic magnetic card control for Circuit Playground Express
-# Designed for 9-year-old level (pre-loaded program)
+# Designed for 9-year-old level - works with alligator clips
 
 import time
 import board
 import digitalio
-import neopixel
 from adafruit_circuitplayground import cp
 
-# Set up reed switch
-reed = digitalio.DigitalInOut(board.A1)
-reed.direction = digitalio.Direction.INPUT
-reed.pull = digitalio.Pull.UP
-
-# Set up NeoPixels
-pixels = neopixel.NeoPixel(board.A2, 8, brightness=0.3)
-
-# Define colors
-WHITE = (255, 255, 255)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
-OFF = (0, 0, 0)
+# Set up the magnetic switch on pin A1
+switch = digitalio.DigitalInOut(board.A1)
+switch.direction = digitalio.Direction.INPUT
+switch.pull = digitalio.Pull.UP
 
 # Main loop
 while True:
-    if not reed.value:  # Card is open
-        # Simple color cycle
-        pixels.fill(RED)
-        time.sleep(0.5)
-        pixels.fill(GREEN)
-        time.sleep(0.5)
-        pixels.fill(BLUE)
-        time.sleep(0.5)
+    if not switch.value:  # Card is open
+        # Light up built-in LEDs
+        cp.pixels.fill((255, 0, 0))  # Red
+        # Play a tone
+        cp.play_tone(440, 0.1)
     else:  # Card is closed
-        pixels.fill(OFF)
+        # Turn off LEDs
+        cp.pixels.fill((0, 0, 0))
     
-    time.sleep(0.1)
+    time.sleep(0.1)  # Small delay
