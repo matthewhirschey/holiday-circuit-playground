@@ -55,25 +55,6 @@ Welcome to Day 1! Today, we'll create a glowing holiday ornament using copper ta
    - Connect both negative legs to another copper strip
    - Experiment with different LED colors and patterns
 
-4. Code a blinking pattern (using Circuit Playground Express):
-
-```python
-import time
-import board
-import digitalio
-
-# Set up the LED pin
-led = digitalio.DigitalInOut(board.D13)
-led.direction = digitalio.Direction.OUTPUT
-
-# Create a blinking pattern
-while True:
-    led.value = True    # LED on
-    time.sleep(0.5)     # Wait half second
-    led.value = False   # LED off
-    time.sleep(0.5)     # Wait half second
-```
-
 ## Troubleshooting Tips
 
 - If the LED doesn't light up:
