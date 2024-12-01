@@ -1,13 +1,13 @@
-# Basic NeoPixel strip control for Circuit Playground Express
-# Designed for 9-year-old level (pre-loaded program)
+# Basic NeoPixel candy cane for Circuit Playground Express
+# Designed for 9-year-old level
 
 import time
 import board
 import neopixel
 from adafruit_circuitplayground import cp
 
-# Set up NeoPixel strip
-strip = neopixel.NeoPixel(board.A1, 10, brightness=0.3)
+# Set up NeoPixel strip - 5 LEDs on pin A1
+pixels = neopixel.NeoPixel(board.A1, 5, brightness=0.3)
 
 # Define colors
 RED = (255, 0, 0)
@@ -16,26 +16,26 @@ OFF = (0, 0, 0)
 
 # Main loop
 while True:
-    if cp.button_a:  # Red and white stripes
-        for i in range(10):
+    if cp.button_a:  # Classic candy cane pattern
+        for i in range(5):
             if i % 2 == 0:
-                strip[i] = RED
+                pixels[i] = RED
             else:
-                strip[i] = WHITE
-    elif cp.button_b:  # Spin pattern
-        for offset in range(10):
-            for i in range(10):
-                if (i + offset) % 2 == 0:
-                    strip[i] = RED
-                else:
-                    strip[i] = WHITE
+                pixels[i] = WHITE
+    
+    elif cp.button_b:  # Moving light pattern
+        for i in range(5):
+            pixels.fill(OFF)  # All off
+            pixels[i] = RED   # One light on
             time.sleep(0.2)
-    elif cp.button_a and cp.button_b:  # Twinkle
-        for i in range(10):
-            strip[i] = WHITE if i % 2 == 0 else RED
+    
+    elif cp.button_a and cp.button_b:  # Sparkle pattern
+        from random import randint
+        for _ in range(10):
+            i = randint(0, 4)  # Random LED
+            pixels[i] = WHITE
             time.sleep(0.1)
-            strip[i] = OFF
-    else:
-        strip.fill(OFF)
+            pixels[i] = RED
+            time.sleep(0.1)
     
     time.sleep(0.1)
