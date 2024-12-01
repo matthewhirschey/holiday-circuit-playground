@@ -1,170 +1,131 @@
 # Day 15: Candy Cane Lights
 
 ## Overview
-Today we'll create a glowing candy cane using diffused NeoPixel LEDs! These special LEDs spread their light to create a softer glow. The younger group will create red and white patterns, while the older group will program complex animations.
+Today we'll create a light-up candy cane using NeoPixel Diffused 8mm Through-Hole LEDs! These special LEDs can each change color independently and can be chained together. We'll learn how to connect them properly on a breadboard and create festive patterns.
 
 ## Materials Needed
 - Circuit Playground Express
-- Diffused NeoPixel Strip (10 LEDs)
-- Mini Breadboard
-- Alligator Clips
-- Candy cane template/outline
-- White craft materials
+- NeoPixel Diffused 8mm Through-Hole LEDs (5 pack)
+- Mini Breadboard (from previous days)
+- Jumper Wires
+- Cardboard/paper for candy cane shape
+- Red and white decorative materials
+
+## Understanding Your NeoPixels
+- Each LED has 4 pins in this order:
+  1. VDD (Power, 3.3-5V)
+  2. GND (Ground)
+  3. DI (Data In)
+  4. DO (Data Out)
+- They work in a chain: DO of one connects to DI of next
+- Built-in drivers (no extra resistors needed)
+- Flat side/indent shows pin 1 (VDD)
 
 ## Instructions for Age 9
 
-1. Create Your Candy Cane:
-   - Draw or trace candy cane shape
-   - Cut strip channels for LEDs
-   - Make space for wires
+1. Plan Your Candy Cane:
+   - Draw candy cane shape on cardboard
+   - Mark spots for 5 LEDs
+   - Space them evenly
 
-2. Connect NeoPixel Strip:
-   - Find the arrows on the strip (shows direction)
-   - Connect to Circuit Playground Express:
-     - Power (red wire) to 3.3V
-     - Ground (black wire) to GND
-     - Data (white wire) to A1
+2. Breadboard Setup:
+   - Power rails (like previous days):
+     - Red jumper from 3.3V to + rail
+     - Black jumper from GND to - rail
 
-3. Place Your LEDs:
-   - Carefully lay strip in channels
-   - Make sure arrows point away from board
-   - Secure with tape if needed
+3. Connect First LED:
+   - Find pin 1 (look for flat side)
+   - Place LED in breadboard
+   - Connect VDD (pin 1) to + rail
+   - Connect GND (pin 2) to - rail
+   - Connect DI (pin 3) to A1 on Circuit Playground
+   - DO (pin 4) will connect to next LED
 
-4. Test Patterns:
-   - Press A for red and white stripes
-   - Press B for spinning effect
-   - Both buttons for twinkling!
+4. Connect Additional LEDs:
+   - Place each LED in breadboard
+   - VDD to + rail
+   - GND to - rail
+   - DI connects to previous LED's DO
+   - Continue chain for all LEDs
+
+5. Test Your Lights:
+   - Press A for red/white pattern
+   - Press B for moving light effect
+   - Both buttons for rainbow pattern!
 
 ## Instructions for Age 13
 
-1. Hardware Setup:
-   - Follow basic assembly instructions
-   - Consider multiple strips for bigger display
+1. Advanced Setup:
+   - Follow basic connection steps
+   - Plan efficient wire routing
+   - Consider future expansion
 
-2. Basic Strip Programming:
+2. Basic LED Code:
 ```python
 import time
 import board
 import neopixel
-from adafruit_circuitplayground import cp
 
-# Set up NeoPixel strip
-strip = neopixel.NeoPixel(board.A1, 10, brightness=0.3)
+# Set up NeoPixel strip - 5 LEDs on pin A1
+pixels = neopixel.NeoPixel(board.A1, 5, brightness=0.3)
 
-# Define colors
+# Define candy cane colors
 RED = (255, 0, 0)
 WHITE = (255, 255, 255)
-OFF = (0, 0, 0)
 
-def candy_stripe():
-    """Create classic candy cane stripes"""
-    for i in range(10):
-        if i % 2 == 0:
-            strip[i] = RED
-        else:
-            strip[i] = WHITE
-
-def spin_pattern():
-    """Make stripes appear to move"""
-    for offset in range(10):
-        for i in range(10):
-            if (i + offset) % 2 == 0:
-                strip[i] = RED
-            else:
-                strip[i] = WHITE
-        time.sleep(0.2)
-
-# Main loop
+# Example pattern
 while True:
-    if cp.button_a:
-        candy_stripe()
-    elif cp.button_b:
-        spin_pattern()
-    else:
-        strip.fill(OFF)
-    time.sleep(0.1)
-```
-
-3. Advanced Animation:
-```python
-class CandyCane:
-    def __init__(self):
-        self.strip = neopixel.NeoPixel(board.A1, 10, brightness=0.3)
-        self.offset = 0
-        self.fade_level = 0
-        self.fade_in = True
-    
-    def smooth_fade(self):
-        """Create smooth fading effect"""
-        if self.fade_in:
-            self.fade_level += 5
-            if self.fade_level >= 255:
-                self.fade_in = False
+    # Alternate red and white
+    for i in range(5):
+        if i % 2 == 0:
+            pixels[i] = RED
         else:
-            self.fade_level -= 5
-            if self.fade_level <= 50:
-                self.fade_in = True
-        
-        red = (self.fade_level, 0, 0)
-        white = (self.fade_level, self.fade_level, self.fade_level)
-        return red, white
-    
-    def sparkle_effect(self):
-        """Add random sparkles to pattern"""
-        self.strip.fill(OFF)
-        for _ in range(3):
-            i = random.randint(0, 9)
-            self.strip[i] = WHITE
-        time.sleep(0.05)
-    
-    def wave_pattern(self):
-        """Create sine wave brightness pattern"""
-        for i in range(10):
-            brightness = int(((math.sin(self.offset + i/2) + 1) / 2) * 255)
-            if i % 2 == 0:
-                self.strip[i] = (brightness, 0, 0)  # Red
-            else:
-                self.strip[i] = (brightness, brightness, brightness)  # White
-        self.offset += 0.2
+            pixels[i] = WHITE
+    time.sleep(1)
 ```
 
-## Testing and Troubleshooting
+3. Testing Tips:
+- Test each LED individually first
+- Verify pin orientations
+- Check all power connections
+- Ensure data chain is correct
 
-### For 9-Year-Olds:
-1. LEDs Not Working?
-   - Check strip direction
-   - Verify connections
-   - Test power
-   - Look for loose wires
+## Troubleshooting
 
-### For 13-Year-Olds:
-1. Animation Issues?
-   - Check timing values
-   - Verify strip length
-   - Debug patterns
-   - Test brightness levels
+1. LEDs Not Lighting?
+   - Check pin 1 orientation (flat side)
+   - Verify power connections
+   - Test data chain sequence
+   - Check code pin assignment
+
+2. Wrong Colors/Pattern?
+   - Verify power is stable
+   - Check data connections
+   - Test LEDs one at a time
+   - Debug code sequence
 
 ## Extensions
 
 ### For 9-Year-Olds:
-1. Create new patterns
-2. Add more strips
-3. Try different shapes
+1. Change pattern speeds
+2. Try different colors
+3. Add more LEDs
+4. Make multiple candy canes
 
 ### For 13-Year-Olds:
-1. Add sound reaction
-2. Create pattern sequences
-3. Add motion effects
-4. Make interactive displays
+1. Create spinning effects
+2. Add motion sensing
+3. Sync multiple canes
+4. Make interactive patterns
 
 ## Safety Notes
-- Handle strips carefully
-- Don't pull on wires
+- Handle LEDs gently
+- Mind pin orientation
+- Don't force into breadboard
 - Keep connections secure
-- Mind power usage
 
 ## Parent Notes
-- Help with strip placement
-- Guide proper handling
-- Assist with connections
-- Support creativity
+- Help identify pin 1
+- Guide breadboard layout
+- Assist with chaining
+- Support testing process
