@@ -3,107 +3,117 @@
 
 import time
 import board
-import adafruit_dht
-import neopixel
+import adafruit_ahtx0
+import array
 import math
 from adafruit_circuitplayground import cp
 
 class WeatherStation:
     def __init__(self):
-        self.dht = adafruit_dht.DHT22(board.A1)
-        self.pixels = neopixel.NeoPixel(board.A2, 10, brightness=0.3)
+        # Set up the AHT20 sensor
+        i2c = board.I2C()
+        self.sensor = adafruit_ahtx0.AHTx0(i2c)
         
-        # Store reading history
-        self.temp_history = [20] * 10
-        self.humid_history = [50] * 10
-        self.temp_min = float('inf')
-        self.temp_max = float('-inf')
+        # Data tracking
+        self.temp_history = array.array('f', [20.0] * 10)
+        self.humid_history = array.array('f', [50.0] * 10)
+        self.history_index = 0
         
-        # Animation settings
+        # Animation
         self.animation_phase = 0
-        self.alert_mode = False
+        
+        # Temperature thresholds
+        self.COLD = 18
+        self.WARM = 25
     
-    def get_smoothed_readings(self):
-        """Get averaged sensor readings"""
+    def update_history(self):
+        """Update rolling averages"""
         try:
-            temp = self.dht.temperature
-            humid = self.dht.humidity
+            # Get new readings
+            temp = self.sensor.temperature
+            humid = self.sensor.relative_humidity
             
             # Update history
-            self.temp_history = self.temp_history[1:] + [temp]
-            self.humid_history = self.humid_history[1:] + [humid]
+            self.temp_history[self.history_index] = temp
+            self.humid_history[self.history_index] = humid
+            self.history_index = (self.history_index + 1) % 10
             
-            # Update min/max
-            self.temp_min = min(self.temp_min, temp)
-            self.temp_max = max(self.temp_max, temp)
-            
-            # Calculate averages
-            avg_temp = sum(self.temp_history) / len(self.temp_history)
-            avg_humid = sum(self.humid_history) / len(self.humid_history)
-            
-            return avg_temp, avg_humid
-        except RuntimeError:
-            return None, None
+            return True
+        except Exception:
+            return False
     
-    def temp_to_gradient(self, temp):
-        """Create color gradient based on temperature"""
-        if temp < 0:
-            # Cold: white to blue
-            ratio = min(1.0, abs(temp) / 10)
-            return (int(255 * (1 - ratio)), int(255 * (1 - ratio)), 255)
-        elif temp < 20:
-            # Comfortable: blue to green
-            ratio = temp / 20
+    def get_averages(self):
+        """Get current averages"""
+        avg_temp = sum(self.temp_history) / len(self.temp_history)
+        avg_humid = sum(self.humid_history) / len(self.humid_history)
+        return avg_temp, avg_humid
+    
+    def temp_to_color(self, temp):
+        """Create smooth color transitions"""
+        if temp < self.COLD:
+            # Blue to green
+            ratio = max(0, temp / self.COLD)
             return (0, int(255 * ratio), int(255 * (1 - ratio)))
-        else:
-            # Warm: green to red
-            ratio = min(1.0, (temp - 20) / 15)
+        elif temp < self.WARM:
+            # Green to red
+            ratio = (temp - self.COLD) / (self.WARM - self.COLD)
             return (int(255 * ratio), int(255 * (1 - ratio)), 0)
+        else:
+            # Full red
+            return (255, 0, 0)
     
-    def check_alerts(self, temp, humid):
+    def show_readings(self):
+        """Display temperature and humidity"""
+        avg_temp, avg_humid = self.get_averages()
+        
+        # Update NeoPixels
+        color = self.temp_to_color(avg_temp)
+        for i in range(10):
+            # Create wave effect
+            brightness = (math.sin(self.animation_phase + i/2) + 1) / 2
+            adjusted_color = tuple(int(c * brightness) for c in color)
+            cp.pixels[i] = adjusted_color
+        
+        self.animation_phase += 0.1
+    
+    def check_alerts(self):
         """Check for extreme conditions"""
-        if temp < -10 or temp > 30 or humid > 90:
-            self.alert_mode = True
-            # Play alert tone
-            if not cp.switch:
-                cp.play_tone(880, 0.1)
-        else:
-            self.alert_mode = False
+        avg_temp, avg_humid = self.get_averages()
+        
+        # Temperature alerts
+        if avg_temp < 10:  # Too cold
+            cp.play_tone(880, 0.1)  # High beep
+        elif avg_temp > 30:  # Too hot
+            cp.play_tone(220, 0.1)  # Low beep
+        
+        # Humidity alerts
+        if avg_humid > 80:  # Too humid
+            cp.play_tone(440, 0.1)  # Mid beep
     
-    def display_weather(self):
-        """Create weather visualization"""
-        temp, humid = self.get_smoothed_readings()
-        if temp is not None:
-            # Check for alerts
-            self.check_alerts(temp, humid)
-            
-            # Get base color
-            color = self.temp_to_gradient(temp)
-            
-            # Create display pattern
-            for i in range(10):
-                if i < (humid / 10):
-                    if self.alert_mode:
-                        # Flashing effect for alerts
-                        brightness = (math.sin(time.monotonic() * 4) + 1) / 2
-                    else:
-                        # Gentle shimmer for normal mode
-                        brightness = (math.sin(time.monotonic() * 2 + i) + 1) / 2
-                    
-                    pixels[i] = tuple(int(c * brightness) for c in color)
-                else:
-                    pixels[i] = (0, 0, 0)
-            
-            # Update animation
-            self.animation_phase += 0.1
-        else:
-            # Error indication
-            pixels.fill((50, 0, 0))
+    def print_status(self):
+        """Print current readings"""
+        avg_temp, avg_humid = self.get_averages()
+        print(f"Temperature: {avg_temp:.1f} °C")
+        print(f"Humidity: {avg_humid:.1f} %")
+        print("-" * 20)
 
 # Create weather station
 station = WeatherStation()
 
 # Main loop
 while True:
-    station.display_weather()
-    time.sleep(0.1)
+    if station.update_history():
+        station.show_readings()
+        
+        if cp.button_a:
+            station.print_status()
+        if cp.button_b:
+            station.check_alerts()
+    else:
+        # Error indication
+        cp.pixels.fill((50, 0, 0))
+        time.sleep(0.2)
+        cp.pixels.fill((0, 0, 0))
+        time.sleep(0.2)
+    
+    time.sleep(0.05)
