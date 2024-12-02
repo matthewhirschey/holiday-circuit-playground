@@ -56,7 +56,21 @@ Specific materials for each day's project are listed in the project instructions
 | 22 | Elf on the Shelf Alert | Create motion detector | Additional PIR Sensors |
 | 23 | Light Explosion | Create ultimate light show | NeoPixel Ring |
 | 24 | Santa Tracker | Build time-based display | DS3231 Precision RTC (PID: 3013), NeoPixel Jewel |
-| 25 | Finale | More building fun | Book of projects |
+| 25 | [Finale Projects](projects/day-25-finale/README.md) | Additional project ideas | Various components |
+
+### Day 25 Projects for Age 9
+- [Musical Mood Light](projects/day-25-finale/projects/musical-mood-light.md) - Sound-reactive light show ⭐
+- [Digital Pet Friend](projects/day-25-finale/projects/digital-pet.md) - Interactive virtual pet ⭐⭐
+- [Color Magic Wand](projects/day-25-finale/projects/color-wand.md) - Motion-controlled wand ⭐
+- [Story Sound Box](projects/day-25-finale/projects/story-box.md) - Interactive storytelling device ⭐⭐
+- [Simple Simon Game](projects/day-25-finale/projects/simple-simon.md) - Memory game with lights ⭐⭐
+
+### Day 25 Projects for Age 13
+- [Weather Station](projects/day-25-finale/projects/weather-station.md) - Environmental monitor ⭐⭐⭐
+- [Motion Controller](projects/day-25-finale/projects/motion-controller.md) - Gesture-based controller ⭐⭐⭐
+- [Sound Synthesizer](projects/day-25-finale/projects/synthesizer.md) - Musical instrument ⭐⭐⭐⭐
+- [IR Messenger](projects/day-25-finale/projects/ir-messenger.md) - Two-way communication ⭐⭐⭐
+- [Security Guard](projects/day-25-finale/projects/security-system.md) - Multi-sensor system ⭐⭐⭐⭐
 
 ## 🎓 Skill Progression
 
@@ -88,9 +102,9 @@ The projects follow a structured learning path:
    - System design
 
 6. **Final Project (Day 25)**
-   - Culmination of all skills
-   - Complex light programming
-   - Advanced animations
+   - Multiple project options
+   - Various difficulty levels
+   - Advanced features
 
 ## 📚 Documentation
 - [Getting Started Guide](docs/getting-started.md)
