@@ -48,47 +48,6 @@ Today, we'll create a glowing holiday greeting card using copper tape and LEDs. 
    - Design parallel connections
    - Create a switch mechanism
 
-2. Circuit Programming:
-```python
-import time
-import board
-import digitalio
-
-# Set up multiple LED pins
-led_pins = [board.D1, board.D2, board.D3]
-leds = []
-
-# Configure each LED
-for pin in led_pins:
-    led = digitalio.DigitalInOut(pin)
-    led.direction = digitalio.Direction.OUTPUT
-    leds.append(led)
-
-def pattern_1():
-    # Light LEDs in sequence
-    for led in leds:
-        led.value = True
-        time.sleep(0.5)
-        led.value = False
-
-def pattern_2():
-    # All LEDs blink together
-    for _ in range(3):
-        for led in leds:
-            led.value = True
-        time.sleep(0.3)
-        for led in leds:
-            led.value = False
-        time.sleep(0.3)
-
-# Main loop
-while True:
-    pattern_1()
-    time.sleep(1)
-    pattern_2()
-    time.sleep(1)
-```
-
 ## Creating a Switch
 1. Cut a small tab of cardstock
 2. Add copper tape to create a contact point
