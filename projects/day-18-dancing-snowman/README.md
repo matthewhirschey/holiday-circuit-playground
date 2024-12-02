@@ -1,50 +1,62 @@
 # Day 18: Dancing Snowman
 
 ## Overview
-Today we'll create a dancing snowman using multiple servo motors! Building on our servo experience from Day 7, we'll make more complex movements. The younger group will coordinate basic dance moves, while the older group will program advanced motion sequences.
+Today we'll create a dancing snowman using two servo motors! Building on our servo experience from Day 7, we'll make more complex movements. The younger group will coordinate basic dance moves, while the older group will program advanced motion sequences.
 
 ## Materials Needed
 - Circuit Playground Express
-- 2 Servo Motors
-- Mini Breadboard
-- Alligator Clips
+- 2 x TowerPro RC Servos (5V)
+- Mini Breadboard (from previous days)
+- Jumper Wires
 - Cardboard/craft materials for snowman
-- Decorating supplies
+- Decorative supplies
+
+## Understanding Your Servos
+- Each servo has three wires:
+  - Red = Power (needs 5V!)
+  - Brown/Black = Ground
+  - Orange/Yellow = Signal
+- Each arm needs its own signal pin
+- Both share power and ground
 
 ## Instructions for Age 9
 
-1. Build Your Snowman:
-   - Cut out snowman parts from cardboard
-   - Make movable arms
-   - Create slots for servos
-   - Add decorations
+1. Breadboard Setup:
+   - Important: Use 5V for power!
+   - Red jumper from 5V to + rail
+   - Black jumper from GND to - rail
 
 2. Connect First Servo (Left Arm):
-   - Red wire to 3.3V
-   - Brown/Black wire to GND
-   - Orange/Yellow wire to A1
+   - Place wires in breadboard:
+     - Red wire to + rail (5V)
+     - Black/Brown wire to - rail
+     - Orange/Yellow wire to a free row
+   - Connect signal row to A1
 
 3. Connect Second Servo (Right Arm):
-   - Red wire to 3.3V
-   - Brown/Black wire to GND
-   - Orange/Yellow wire to A2
+   - Place wires in breadboard:
+     - Red wire to + rail (5V)
+     - Black/Brown wire to - rail
+     - Orange/Yellow wire to a free row
+   - Connect signal row to A2
 
-4. Attach the Arms:
-   - Connect arms to servo horns
-   - Make sure they move freely
-   - Test range of motion
+4. Create Your Snowman:
+   - Cut out basic snowman shape
+   - Make slots for servo horns
+   - Attach arms carefully
+   - Add decorations
 
-5. Try Dance Moves:
-   - Press A for simple wave
+5. Test Your Dancer:
+   - Press A for wave pattern
    - Press B for dance moves
    - Both buttons for special dance!
 
 ## Instructions for Age 13
 
-1. Assembly:
-   - Follow basic construction steps
-   - Design balanced arm mechanism
-   - Consider movement constraints
+1. Advanced Setup:
+   - Follow basic servo connections
+   - Plan arm movements carefully
+   - Consider servo mounting
 
 2. Basic Movement Code:
 ```python
@@ -55,137 +67,89 @@ from adafruit_motor import servo
 from adafruit_circuitplayground import cp
 
 # Set up servos
-pwm_1 = pwmio.PWMOut(board.A1, frequency=50)
-pwm_2 = pwmio.PWMOut(board.A2, frequency=50)
+pwm1 = pwmio.PWMOut(board.A1, frequency=50)
+pwm2 = pwmio.PWMOut(board.A2, frequency=50)
 
-left_arm = servo.Servo(pwm_1)
-right_arm = servo.Servo(pwm_2)
+left_arm = servo.Servo(pwm1)
+right_arm = servo.Servo(pwm2)
 
-def wave_motion():
-    """Simple waving motion"""
+# Center both arms
+left_arm.angle = 90
+right_arm.angle = 90
+
+def wave_pattern():
+    """Simple wave motion"""
+    # Left arm wave
     left_arm.angle = 45
-    right_arm.angle = 135
     time.sleep(0.5)
     left_arm.angle = 135
+    time.sleep(0.5)
+    left_arm.angle = 90
+    
+    # Right arm wave
     right_arm.angle = 45
     time.sleep(0.5)
+    right_arm.angle = 135
+    time.sleep(0.5)
+    right_arm.angle = 90
 
 # Main loop
 while True:
     if cp.button_a:
-        wave_motion()
-    else:
-        # Return to neutral
-        left_arm.angle = 90
-        right_arm.angle = 90
+        wave_pattern()
     time.sleep(0.1)
-```
-
-3. Advanced Choreography:
-```python
-class DancingSnowman:
-    def __init__(self):
-        # Set up servos with smoother motion
-        self.left_arm = servo.Servo(pwm_1, min_pulse=750, max_pulse=2250)
-        self.right_arm = servo.Servo(pwm_2, min_pulse=750, max_pulse=2250)
-        
-        self.current_move = 0
-        self.move_time = 0
-        self.is_dancing = False
-    
-    def smooth_move(self, servo, target, steps=10):
-        """Move servo smoothly to position"""
-        start = servo.angle
-        step_size = (target - start) / steps
-        
-        for i in range(steps):
-            servo.angle = start + (step_size * i)
-            time.sleep(0.02)
-        servo.angle = target
-    
-    def macarena(self):
-        """Macarena dance sequence"""
-        # Arms out
-        self.smooth_move(self.left_arm, 180)
-        self.smooth_move(self.right_arm, 0)
-        time.sleep(0.5)
-        
-        # Arms crossed
-        self.smooth_move(self.left_arm, 45)
-        self.smooth_move(self.right_arm, 135)
-        time.sleep(0.5)
-        
-        # Arms up
-        self.smooth_move(self.left_arm, 90)
-        self.smooth_move(self.right_arm, 90)
-        time.sleep(0.5)
-    
-    def twist(self):
-        """Twisting dance move"""
-        for angle in range(0, 181, 20):
-            self.left_arm.angle = angle
-            self.right_arm.angle = 180 - angle
-            time.sleep(0.1)
-        
-        for angle in range(180, -1, -20):
-            self.left_arm.angle = angle
-            self.right_arm.angle = 180 - angle
-            time.sleep(0.1)
-    
-    def victory(self):
-        """Victory arm wave"""
-        # Both arms up
-        self.smooth_move(self.left_arm, 180)
-        self.smooth_move(self.right_arm, 180)
-        time.sleep(0.3)
-        
-        # Wave them
-        for _ in range(3):
-            self.smooth_move(self.left_arm, 150)
-            self.smooth_move(self.right_arm, 150)
-            time.sleep(0.2)
-            self.smooth_move(self.left_arm, 180)
-            self.smooth_move(self.right_arm, 180)
-            time.sleep(0.2)
 ```
 
 ## Testing and Troubleshooting
 
 ### For 9-Year-Olds:
 1. Arms Not Moving?
-   - Check servo connections
-   - Verify power
-   - Test arm attachments
-   - Clear any obstacles
+   - Check all wire colors
+   - Verify 5V power (important!)
+   - Test servos one at a time
+   - Make sure arms can move freely
 
 ### For 13-Year-Olds:
 1. Movement Issues?
-   - Debug servo timing
-   - Check angle limits
-   - Test smooth transitions
-   - Verify sequence timing
+   - Debug servo angles
+   - Check timing values
+   - Test power supply
+   - Verify pin assignments
 
-## Extensions
+## Servo Tips
+
+1. Power Needs:
+   - Must use 5V (not 3.3V)
+   - Both servos share power
+   - Keep wires neat
+
+2. Movement Range:
+   - 0° to 180° motion
+   - Start at 90° (center)
+   - Move smoothly
+   - Don't force arms
+
+## Extension Ideas
 
 ### For 9-Year-Olds:
-1. Add new dance moves
-2. Create timing patterns
-3. Synchronize with music
+1. Add dance moves
+2. Create arm patterns
+3. Sync with music
 
 ### For 13-Year-Olds:
-1. Add more servos
-2. Create dance routines
-3. Add motion sensing
-4. Sync with music beats
+1. Complex choreography
+2. Motion sequences
+3. Interactive dances
+4. Sound integration
 
 ## Safety Notes
-- Handle servos carefully
-- Mind moving parts
+- Use correct voltage (5V)
+- Don't force arms
 - Keep wires organized
-- Don't force movements
+- Secure servo mounts
 
 ## Parent Notes
-- Help with construction
-- Guide servo handling
+- Help with servo mounting
+- Guide arm attachment
 - Assist with testing
 - Support creativity
