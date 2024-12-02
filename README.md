@@ -55,8 +55,8 @@ Specific materials for each day's project are listed in the project instructions
 | 21 | Compass to the North Pole | Build direction finder | Compass Module |
 | 22 | Elf on the Shelf Alert | Create motion detector | Additional PIR Sensors |
 | 23 | Light Explosion | Create ultimate light show | NeoPixel Ring |
-| 24 | Santa Tracker | Build time-based display | Real-Time Clock Module |
-| 25 | Finale | More bulding fun | Book of projects |
+| 24 | Santa Tracker | Build time-based display | DS3231 Precision RTC (PID: 3013), NeoPixel Jewel |
+| 25 | Finale | More building fun | Book of projects |
 
 ## 🎓 Skill Progression
 
