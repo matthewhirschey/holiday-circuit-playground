@@ -52,11 +52,11 @@ Specific materials for each day's project are listed in the project instructions
 | 18 | Dancing Snowman | Build animated decoration | Additional Servo Motors |
 | 19 | Holiday Story Time | Create audio playback | (Uses Day 9 components) |
 | 20 | Tree Light Show | Create light display | Multiple colored LEDs |
-| 21 | Interactive Wiring Fun | Learn wiring techniques | Jumper Wires |
-| 22 | Compass to the North Pole | Build direction finder | Compass Module |
-| 23 | Elf on the Shelf Alert | Create motion detector | Additional PIR Sensors |
+| 21 | Compass to the North Pole | Build direction finder | Compass Module |
+| 22 | Elf on the Shelf Alert | Create motion detector | Additional PIR Sensors |
+| 23 | Light Explosion | Create ultimate light show | NeoPixel Ring |
 | 24 | Santa Tracker | Build time-based display | Real-Time Clock Module |
-| 25 | Grand Finale: Light Explosion | Create ultimate light show | NeoPixel Ring |
+| 25 | Finale | More bulding fun | Book of projects |
 
 ## 🎓 Skill Progression
 
