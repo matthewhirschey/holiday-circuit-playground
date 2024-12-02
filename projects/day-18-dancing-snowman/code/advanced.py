@@ -1,4 +1,4 @@
-# Advanced dancing snowman control for Circuit Playground Express
+# Advanced dancing snowman for Circuit Playground Express
 # Designed for 13-year-old level
 
 import time
@@ -10,18 +10,24 @@ from adafruit_circuitplayground import cp
 
 class DancingSnowman:
     def __init__(self):
-        # Set up servos with extended range
-        pwm_1 = pwmio.PWMOut(board.A1, frequency=50)
-        pwm_2 = pwmio.PWMOut(board.A2, frequency=50)
+        # Set up servos
+        pwm1 = pwmio.PWMOut(board.A1, frequency=50)
+        pwm2 = pwmio.PWMOut(board.A2, frequency=50)
         
-        self.left_arm = servo.Servo(pwm_1, min_pulse=750, max_pulse=2250)
-        self.right_arm = servo.Servo(pwm_2, min_pulse=750, max_pulse=2250)
+        self.left_arm = servo.Servo(pwm1)
+        self.right_arm = servo.Servo(pwm2)
         
-        # Animation tracking
-        self.current_move = 0
-        self.move_time = 0
-        self.is_dancing = False
-        self.dance_phase = 0
+        # Animation settings
+        self.phase = 0
+        self.dance_mode = 0
+        
+        # Center arms
+        self.center_arms()
+    
+    def center_arms(self):
+        """Move arms to center position"""
+        self.left_arm.angle = 90
+        self.right_arm.angle = 90
     
     def smooth_move(self, servo, target, steps=10):
         """Move servo smoothly to position"""
@@ -29,9 +35,47 @@ class DancingSnowman:
         step_size = (target - start) / steps
         
         for i in range(steps):
-            servo.angle = start + (step_size * i)
+            angle = start + (step_size * i)
+            servo.angle = angle
             time.sleep(0.02)
         servo.angle = target
+    
+    def wave_pattern(self):
+        """Coordinated wave motion"""
+        # Left arm wave
+        self.smooth_move(self.left_arm, 135)
+        self.smooth_move(self.left_arm, 45)
+        self.smooth_move(self.left_arm, 90)
+        
+        # Right arm wave
+        self.smooth_move(self.right_arm, 135)
+        self.smooth_move(self.right_arm, 45)
+        self.smooth_move(self.right_arm, 90)
+    
+    def dance_pattern(self):
+        """Synchronized dance movement"""
+        # Arms up together
+        self.smooth_move(self.left_arm, 180)
+        self.smooth_move(self.right_arm, 180)
+        time.sleep(0.3)
+        
+        # Arms down together
+        self.smooth_move(self.left_arm, 0)
+        self.smooth_move(self.right_arm, 0)
+        time.sleep(0.3)
+        
+        # Return to center
+        self.smooth_move(self.left_arm, 90)
+        self.smooth_move(self.right_arm, 90)
+    
+    def swing_pattern(self):
+        """Smooth swinging motion"""
+        self.phase += 0.1
+        left_angle = 90 + math.sin(self.phase) * 45
+        right_angle = 90 + math.cos(self.phase) * 45
+        
+        self.left_arm.angle = left_angle
+        self.right_arm.angle = right_angle
     
     def macarena(self):
         """Macarena dance sequence"""
@@ -50,55 +94,27 @@ class DancingSnowman:
         self.smooth_move(self.right_arm, 90)
         time.sleep(0.5)
     
-    def twist(self):
-        """Twisting dance move"""
-        for angle in range(0, 181, 20):
-            self.left_arm.angle = angle
-            self.right_arm.angle = 180 - angle
-            time.sleep(0.1)
-        
-        for angle in range(180, -1, -20):
-            self.left_arm.angle = angle
-            self.right_arm.angle = 180 - angle
-            time.sleep(0.1)
-    
-    def victory(self):
-        """Victory arm wave"""
-        # Both arms up
-        self.smooth_move(self.left_arm, 180)
-        self.smooth_move(self.right_arm, 180)
-        time.sleep(0.3)
-        
-        # Wave them
-        for _ in range(3):
-            self.smooth_move(self.left_arm, 150)
-            self.smooth_move(self.right_arm, 150)
-            time.sleep(0.2)
-            self.smooth_move(self.left_arm, 180)
-            self.smooth_move(self.right_arm, 180)
-            time.sleep(0.2)
-    
-    def wave_pattern(self):
-        """Smooth wave motion"""
-        phase = time.monotonic() * 2
-        self.left_arm.angle = 90 + math.sin(phase) * 45
-        self.right_arm.angle = 90 + math.cos(phase) * 45
-    
-    def update(self):
-        """Update animation state"""
+    def run_dance(self):
+        """Main dance function"""
         if cp.button_a:
-            self.macarena()
-        elif cp.button_b:
-            self.twist()
-        elif cp.button_a and cp.button_b:
-            self.victory()
-        else:
             self.wave_pattern()
+        elif cp.button_b:
+            self.dance_pattern()
+        elif cp.button_a and cp.button_b:
+            self.macarena()
+        else:
+            self.swing_pattern()
 
 # Create dancer
-snowman = DancingSnowman()
+dancer = DancingSnowman()
 
 # Main loop
 while True:
-    snowman.update()
-    time.sleep(0.01)
+    try:
+        dancer.run_dance()
+        time.sleep(0.01)
+    except Exception as e:
+        # Return to safe position on error
+        dancer.center_arms()
+        print(f"Error: {e}")
+        time.sleep(1)
