@@ -7,21 +7,24 @@ Create a magical device that tracks Santa's progress on Christmas Eve using real
 
 ## 📋 Parts Needed
 - Circuit Playground Express
-- Real-Time Clock (RTC) Module
-- NeoPixel Jewel
-- Alligator Clips
-- USB Cable
+- Adafruit DS3231 Precision RTC Breakout (PID: 3013)
+- NeoPixel Jewel - 7 x 5050 RGB LED with Integrated Drivers
+- 4-5 Alligator Clips
+- USB Cable for programming and power
 
 ## 👩‍💻 Instructions for Grace (Age 9)
 
 ### Basic Setup
-1. Connect the Real-Time Clock Module:
-   - Attach the RTC module to the Circuit Playground Express using alligator clips
-   - Make sure all connections are secure
+1. Connect the DS3231 RTC Module:
+   - Connect VCC on RTC to 3.3V on Circuit Playground Express
+   - Connect GND on RTC to GND on Circuit Playground Express
+   - Connect SDA on RTC to SDA (A4) on Circuit Playground Express
+   - Connect SCL on RTC to SCL (A5) on Circuit Playground Express
 
 2. Add the NeoPixel Jewel:
-   - Connect the NeoPixel Jewel to your Circuit Playground Express
-   - Double-check all connections
+   - Connect GND on NeoPixel to GND on Circuit Playground Express
+   - Connect PWR on NeoPixel to VOUT on Circuit Playground Express
+   - Connect IN on NeoPixel to A1 on Circuit Playground Express
 
 ### Programming
 1. Upload the starter code (see `code/basic_tracker.py`)
@@ -37,12 +40,19 @@ Create a magical device that tracks Santa's progress on Christmas Eve using real
 ## 👨‍💻 Instructions for Henry (Age 13)
 
 ### Advanced Setup
-1. Configure the RTC Module:
-   - Connect the RTC to specific pins on the Circuit Playground Express
-   - Initialize the clock with accurate time
+1. Configure the DS3231 RTC Module:
+   - Wire the RTC module using the I2C connections:
+     * VCC → 3.3V
+     * GND → GND
+     * SDA → SDA (A4)
+     * SCL → SCL (A5)
+   - Initialize the clock with accurate time using the provided code
 
 2. NeoPixel Integration:
-   - Wire the NeoPixel Jewel for advanced control
+   - Wire the NeoPixel Jewel:
+     * GND → GND
+     * PWR → VOUT
+     * IN → A1
    - Test different brightness levels and patterns
 
 ### Programming
@@ -63,22 +73,28 @@ Basic code snippets are provided in the `code` directory:
 - `advanced_tracker.py` - Advanced features with time zones
 
 ## 🔍 Troubleshooting
-- If lights aren't working, check all connections
-- Make sure the RTC module is properly initialized
-- Verify USB connection is secure
-- Check battery levels if using battery power
+- If the RTC isn't responding:
+  * Check I2C connections (SDA and SCL)
+  * Verify 3.3V power connection
+  * Make sure the battery is installed in the RTC module
+- If NeoPixel lights aren't working:
+  * Verify power connections
+  * Check the data pin connection to A1
+  * Try adjusting the brightness in code
+- Make sure the USB connection is secure for power
+- If time is incorrect, you may need to set the RTC's time using the provided code
 
 ## 🌟 Extensions
 - Add sound effects for different times
 - Create a world map display with LEDs
 - Implement a countdown feature
-- Add temperature sensing for "North Pole" conditions
+- Add temperature sensing using the DS3231's built-in temperature sensor
 
 ## 📚 Learning Objectives
-- Understanding time and clocks
-- Working with real-time data
-- Programming light patterns
-- Basic time zone concepts
+- Understanding real-time clocks and I2C communication
+- Working with time data and timezones
+- Programming light patterns and animations
+- Basic electronics and circuitry concepts
 
 ## 🎨 Customization Ideas
 - Change colors for different regions
@@ -90,6 +106,7 @@ Basic code snippets are provided in the `code` directory:
 - Always supervise connections
 - Handle electronic components with care
 - Keep connections away from water
-- Use appropriate power sources
+- Use appropriate power sources (3.3V for RTC, not 5V)
+- Be careful not to short circuit any connections
 
 Happy tracking! 🎄✨
