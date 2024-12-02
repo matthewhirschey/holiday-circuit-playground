@@ -1,1 +1,5 @@
-IyBIb2xpZGF5IENpcmN1aXQgUGxheWdyb3VuZCBFeHByZXNzIEFkdmVudHVyZSDwn4yU...
+# Holiday Circuit Playground Express Adventure 🎄
+
+An electronics advent calendar featuring 25 days of fun Circuit Playground Express projects for kids!
+
+[Rest of content as shown above...]
