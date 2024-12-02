@@ -1,143 +1,162 @@
 # Day 19: Holiday Story Time
 
 ## Overview
-Today we'll create a holiday story player using our STEMMA Speaker! We'll use both pre-recorded holiday stories and generated sounds to create an interactive audio experience. The younger group will control story playback, while the older group will program complex audio sequences with effects.
+Today we'll create an interactive story player using our STEMMA Speaker from Day 9! We'll build on our audio experience to create a more complex storytelling device. The younger group will create basic story sequences, while the older group will program interactive narratives.
 
 ## Materials Needed
 - Circuit Playground Express
-- STEMMA Speaker
+- STEMMA Speaker (from Day 9)
+- STEMMA JST PH 2mm 3-Pin to Male Header Cable
 - Mini Breadboard
-- Alligator Clips
-- Story box materials
-- USB Cable
-- Computer for file transfer
+- Jumper Wires
+- Story box or holder materials
 
-## Required Audio Files
-- `holiday_story.wav` (provided) - A short holiday story in WAV format
-- Note: The story file should be 16-bit, 22050 Hz, mono WAV format for best compatibility
+## Setup Reminder
+- STEMMA Speaker needs three connections:
+  1. Power (3.3V)
+  2. Ground (GND)
+  3. Audio signal
+- Connected using Male Header Cable:
+  - Red wire to power
+  - Black wire to ground
+  - White wire to signal
 
 ## Instructions for Age 9
 
-1. Connect Your Speaker:
-   - Red wire to 3.3V
-   - Black wire to GND
-   - White wire to A1
+1. Connect Speaker (like Day 9):
+   - Power rails on breadboard:
+     - Red jumper from 3.3V to + rail
+     - Black jumper from GND to - rail
+   - Place header pins in breadboard:
+     - Red wire to + rail
+     - Black wire to - rail
+     - White wire to empty row
+   - Connect signal:
+     - Jumper from white wire row to A1
 
-2. Load the Story File:
-   - Connect Circuit Playground Express to computer
-   - It will appear as a USB drive called CIRCUITPY
-   - Copy `holiday_story.wav` to the CIRCUITPY drive
-   - Wait for file transfer to complete
-   - The built-in LED will stop flashing when ready
+2. Create Story Box:
+   - Design a festive holder
+   - Add button labels
+   - Make space for speaker
+   - Consider decorations
 
-3. Create Story Box:
-   - Decorate a box for your player
-   - Add button labels:
-     - A: Play Story
-     - B: Play Sound Effects
-     - A+B: Special Surprise!
-   - Make holes for the speaker
-   - Add holiday decorations
-
-4. Test Your Player:
-   - Press A to play the story
-   - Press B for sound effects
-   - Press both buttons for a surprise
-   - Use switch for volume control
-
-5. Tell Your Story:
-   - Practice the timing with the audio
-   - Add gestures and movements
-   - Create a special story area
+3. Test Your Setup:
+   - Button A: Start story
+   - Button B: Sound effects
+   - Both buttons: Special sounds
 
 ## Instructions for Age 13
 
-1. Hardware Setup:
-   - Follow basic connection instructions
-   - Consider speaker placement for best sound
-   - Think about LED placement for effects
+1. Advanced Setup:
+   - Follow basic connections
+   - Plan button layout
+   - Consider volume control
 
-2. File Preparation:
-   - Story file must be WAV format (16-bit, 22050 Hz, mono)
-   - If you have an MP3, convert it using Audacity:
-     1. Open MP3 in Audacity
-     2. Click File → Export → Export as WAV
-     3. Select 'WAV (Microsoft)'
-     4. Choose '16-bit PCM'
-     5. Set Project Rate to 22050 Hz
-     6. Save as 'holiday_story.wav'
+2. Basic Story Code:
+```python
+import time
+import array
+import math
+import board
+import audioio
+from adafruit_circuitplayground import cp
+
+# Set up audio output
+audio = audioio.AudioOut(board.A1)
+
+def generate_tone(frequency, length):
+    """Generate a tone of given frequency"""
+    length = int(length * 8000)
+    tone = array.array('H', [0] * length)
+    for i in range(length):
+        tone[i] = int(math.sin(math.pi * 2 * i / length) * 32767 + 32767)
+    return audioio.RawSample(tone)
+
+# Create story sounds
+INTRO_SOUND = generate_tone(440, 0.3)  # A4 note
+EFFECT_SOUND = generate_tone(880, 0.2)  # A5 note
+
+def play_story_part():
+    """Play a sequence of tones for story"""
+    audio.play(INTRO_SOUND)
+    time.sleep(0.3)
+    for freq in [262, 330, 392]:  # C4, E4, G4
+        tone = generate_tone(freq, 0.2)
+        audio.play(tone)
+        time.sleep(0.2)
+```
 
 3. Advanced Features:
-   - Create multiple sound sequences
-   - Add light effects
-   - Use sensors for interactive playback
-   - Program environmental effects
+```python
+class StoryTeller:
+    def __init__(self):
+        self.current_page = 0
+        self.is_playing = False
+        
+    def play_melody(self, notes):
+        """Play a sequence of notes"""
+        for freq, duration in notes:
+            tone = generate_tone(freq, duration)
+            audio.play(tone)
+            # Light pattern while playing
+            cp.pixels.fill((255, 255, 0))
+            time.sleep(duration)
+            cp.pixels.fill((0, 0, 0))
+            time.sleep(0.05)
+```
 
 ## Testing and Troubleshooting
 
 ### For 9-Year-Olds:
 1. No Sound?
    - Check speaker connections
-   - Verify file is on CIRCUITPY drive
-   - Try adjusting volume switch
+   - Verify power
+   - Try adjusting volume
    - Reset the board
-
-2. File Won't Copy?
-   - Check file name (holiday_story.wav)
-   - Ensure file format is correct
-   - Try ejecting and reconnecting drive
-   - Make sure drive has space
 
 ### For 13-Year-Olds:
 1. Audio Issues?
-   - Verify WAV format settings
-   - Check playback timing
-   - Debug effects mixing
-   - Monitor memory usage
+   - Debug signal generation
+   - Check timing values
+   - Verify audio objects
+   - Test sequences
 
-2. Code Problems?
-   - Print debug messages
-   - Test file operations
-   - Verify event triggers
-   - Check sensor readings
-
-## Extensions
+## Story Ideas
 
 ### For 9-Year-Olds:
-1. Create story cards
-2. Add character voices
-3. Make sound effect buttons
-4. Design a story scene
+1. Holiday greetings
+2. Short holiday story
+3. Sound effects collection
+4. Musical patterns
 
 ### For 13-Year-Olds:
-1. Add motion triggers
-2. Create branching stories
-3. Synchronize LED patterns
-4. Add environmental effects
-5. Create interactive elements
+1. Interactive story
+2. Multi-part tale
+3. Sound and light show
+4. Choose-your-adventure
+
+## Sound Design Tips
+
+1. Creating Good Tones:
+   - Use simple frequencies
+   - Add pauses between sounds
+   - Vary durations
+   - Mix different pitches
+
+2. Story Structure:
+   - Start with intro sound
+   - Use effects for transitions
+   - End with conclusion tone
+   - Keep timing consistent
 
 ## Safety Notes
-- Keep volume at reasonable levels
-- Handle connections carefully
-- Mind the speaker placement
-- Keep electronics dry
+- Keep volume reasonable
+- Protect speaker connections
+- Mind wire placement
+- Secure all components
 
 ## Parent Notes
-
-### Setup Help
-- Assist with file transfer
-- Guide proper volume levels
-- Help with connections
-- Support creative ideas
-
-### Circuit Playground Tips
-- Files must be in correct format
-- Drive may need to be ejected properly
-- Board may need reset after file transfer
-- Save code before copying files
-
-### Story Creation
-- Help choose appropriate content
-- Guide timing and pacing
-- Support sound effects ideas
-- Encourage creativity
+- Help with audio timing
+- Guide story creation
+- Assist with testing
+- Support creativity
