@@ -34,8 +34,8 @@ Today, we'll create a glowing snowman that lights up when you press a button. We
 
 4. Test Your Circuit:
    - Plug in your Circuit Playground Express
-   - Follow the instructions on [this video](https://www.youtube.com/watch?v=3g-e80RkqtY)
-   - Press button A
+   - If your parents help preload the software needed to light up the eyes, then press button A.
+   - If not, then follow the instrutions for the 13 year old.
    - Watch your LEDs light up!
    - Press button B to turn the lights off.
 
@@ -47,53 +47,120 @@ Today, we'll create a glowing snowman that lights up when you press a button. We
 ## Instructions for Age 13
 
 1. Setup Circuit Playground Express:
-   - Connect board to computer via USB
-   - Create a new file called code.py
    - Follow the basic wiring instructions above
+   - Follow the instructions on [this video](https://www.youtube.com/watch?v=3g-e80RkqtY)
+   - Connect board to computer via USB
 
-2. Basic Programming:
+## Basic Programming (Using MakeCode)
+1. Go to [MakeCode for Circuit Playground Express](https://makecode.adafruit.com/)
+2. Start a new project
+3. Drag blocks to create this program:
+   - From `Input`, drag an `on button A pressed` block
+   - From `Loops`, drag a `repeat` block inside the button block
+   - From `Light`, drag `set all pixels to` block inside the repeat
+   - From `Light`, drag `show ring` block to create patterns
+   - From `Basic`, add `pause` blocks between light changes
+
+Your blocks should look something like:
+```
+on button A pressed:
+    repeat 4 times:
+        set all pixels to white
+        pause 200ms
+        set all pixels to black
+        pause 200ms
+```
+
+## Advanced Programming (Using CircuitPython)
+### Setting Up Your Coding Environment
+1. First, let's get your Circuit Playground Express ready:
+   - Plug your Circuit Playground Express into your computer with the USB cable
+   - Double-click the reset button (in the middle of the board)
+   - You should see a new drive appear called CIRCUITPY
+
+2. Creating Your Code File:
+   - You can use any text editor to write your code! Some good options are:
+     - Mu Editor (great for beginners - it's made specially for CircuitPython)
+     - VS Code (if you want to feel like a pro programmer)
+     - Even Notepad or TextEdit will work!
+   - Create a new file and name it exactly `code.py`
+   - Important: Save this file directly to your CIRCUITPY drive
+
+3. Quick Tips:
+   - Your code will run automatically when you save it
+   - If something goes wrong, just double-click the reset button
+   - The red LED will flash if there's an error in your code
+   - Keep the serial console open to see helpful error messages
+
+### The Code
+Now you're ready to copy this code into your `code.py` file:
+
 ```python
 import time
 import board
-import digitalio
 from adafruit_circuitplayground import cp
 
-# Set up external LEDs
-led1 = digitalio.DigitalInOut(board.A1)
-led1.direction = digitalio.Direction.OUTPUT
+# Set up the board
+cp.pixels.brightness = 0.3  # Set brightness to 30%
 
-led2 = digitalio.DigitalInOut(board.A2)
-led2.direction = digitalio.Direction.OUTPUT
-
-# Main loop
+# Main program with different effects
 while True:
-    if cp.button_a:  # Button A is pressed
-        # Make eyes twinkle
-        led1.value = True
-        led2.value = False
-        time.sleep(0.2)
-        led1.value = False
-        led2.value = True
-        time.sleep(0.2)
-    else:
-        # Turn off both LEDs when button is not pressed
-        led1.value = False
-        led2.value = False
+    if cp.button_a:  # When button A is pressed
+        # Twinkling effect
+        for _ in range(4):  # Repeat 4 times
+            # Turn all NeoPixels on in white
+            cp.pixels.fill((255, 255, 255))
+            time.sleep(0.2)
+            # Turn all NeoPixels off
+            cp.pixels.fill((0, 0, 0))
+            time.sleep(0.2)
+            
+        # Fading glow effect
+        for brightness in range(0, 255, 25):
+            # Gradually increase brightness
+            cp.pixels.fill((brightness, brightness, brightness))
+            time.sleep(0.05)
+        for brightness in range(255, 0, -25):
+            # Gradually decrease brightness
+            cp.pixels.fill((brightness, brightness, brightness))
+            time.sleep(0.05)
+            
+        # Turn off all pixels
+        cp.pixels.fill((0, 0, 0))
+    
+    # Optional: Add more effects with button B
+    elif cp.button_b:
+        # Create a spinning effect
+        for i in range(10):  # One full rotation
+            cp.pixels[i] = (255, 255, 255)  # Turn on one pixel
+            time.sleep(0.1)
+            cp.pixels[i] = (0, 0, 0)  # Turn it off
 ```
 
-3. Advanced Features:
-```python
-# Add this function for a fading effect
-def fade_eyes():
-    # Turn on NeoPixels for a glowing effect
-    for i in range(10):
-        cp.pixels.fill((i * 5, i * 5, i * 5))
-        time.sleep(0.05)
-    for i in range(10, 0, -1):
-        cp.pixels.fill((i * 5, i * 5, i * 5))
-        time.sleep(0.05)
-    cp.pixels.fill((0, 0, 0))
-```
+### Cool Things You Can Add:
+1. Change Your LED Patterns:
+   - Make them blink at different speeds (change the `time.sleep()` values)
+   - Make them blink together instead of alternating
+   - Create a morse code pattern
+   - Make one LED stay on while the other blinks
+
+2. Use Both Buttons:
+   - Button A could control one LED
+   - Button B could control the other LED
+   - Both buttons together could make a special pattern
+
+3. Create Different Sequences:
+   - Fast blink, then slow blink
+   - One LED blinks twice, then the other blinks once
+   - Make a counting pattern (blink the number of times you press the button)
+
+4. Debugging Tips:
+   - If your LEDs aren't lighting up:
+     - Check that the longer leg (positive) is connected to A1 or A2
+     - Check that the shorter leg (negative) is connected to GND
+     - Make sure your alligator clips have good connections
+     - Try swapping the LEDs to see if one might not be working
+     - Double-check your code for typos
 
 ## Testing Your Snowman
 
