@@ -26,16 +26,18 @@ Today, we'll create a glowing snowman that lights up when you press a button. We
    - Cut a small hole for the nose (where button A will go)
 
 3. Build Your Circuit:
-   - Connect an LED to pin A1 using alligator clips:
-     - Longer leg (positive) to A1
+   - Connect an LED to pin A3 using alligator clips:
+     - Longer leg (positive) to A3
      - Shorter leg (negative) to GND
-   - Connect another LED to pin A2 the same way
+   - Connect another LED to pin A3 the same way
    - These will be your snowman's eyes
 
 4. Test Your Circuit:
    - Plug in your Circuit Playground Express
+   - Follow the instructions on [this video](https://www.youtube.com/watch?v=3g-e80RkqtY)
    - Press button A
    - Watch your LEDs light up!
+   - Press button B to turn the lights off.
 
 5. Decorate:
    - Add a scarf, hat, or arms
@@ -136,7 +138,7 @@ def fade_eyes():
 - Keep track of small parts
 
 ## Parent Notes
-- Help with Circuit Playground Express setup
+- Help with Circuit Playground Express setup, preload the file needed to control the buttons for the 9 year old (watch the above video). 
 - Guide circuit testing
 - Assist with USB connection
 - Monitor tool usage
