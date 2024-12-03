@@ -28,6 +28,7 @@ Transform your wooden Christmas tree into a glowing masterpiece! Today we'll add
    - Connect negative LED legs with another strip
    - Add the tactile button switch in the middle
 
+```svg
    <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
      <!-- Background -->
      <rect width="400" height="300" fill="#f8f9fa"/>
@@ -55,6 +56,7 @@ Transform your wooden Christmas tree into a glowing masterpiece! Today we'll add
      <text x="170" y="220" text-anchor="middle" font-size="10">Pin 3</text>
      <text x="230" y="220" text-anchor="middle" font-size="10">Pin 4</text>
    </svg>
+```
 
 4. Connect Power:
    - Attach battery positive to one side
