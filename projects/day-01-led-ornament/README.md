@@ -91,3 +91,7 @@ Welcome to Day 1! Today, we'll create a glowing holiday ornament using copper ta
 - Adult supervision required for hole punching
 - Keep small batteries away from young children
 - Properly dispose of used batteries
+
+## Project Examples
+
+![IMG_0785](https://github.com/user-attachments/assets/626966ca-7fce-406b-9d50-e18bfd6966da)
