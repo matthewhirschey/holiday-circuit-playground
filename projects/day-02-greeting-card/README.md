@@ -90,3 +90,8 @@ LED 2 (-) ----|
 - Guide circuit testing
 - Assist with battery placement
 - Monitor tool usage
+
+## Project Examples
+![IMG_0790](https://github.com/user-attachments/assets/3514cd8f-9c03-4213-92c4-670bef987e1e)
+![IMG_0791](https://github.com/user-attachments/assets/0a1a9fe7-c6cd-4999-a8ab-a081cfb74798)
+
