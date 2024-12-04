@@ -6,8 +6,7 @@ Today, we'll create a glowing snowman that lights up when you press a button. We
 ## Materials Needed
 - Circuit Playground Express
 - USB Cable
-- Two LEDs (white or any color)
-- 2 x 220Ω resistors (recommended for LED protection)
+- Two LEDs (blue, white or any color for the snowman's eyes)
 - Alligator Clips
 - Cardstock for snowman
 - Decorating supplies (markers, stickers, etc.)
@@ -27,13 +26,11 @@ Today, we'll create a glowing snowman that lights up when you press a button. We
    - Cut a small hole for the nose (where button A will go)
 
 3. Build Your Circuit:
-   - Connect the first LED to pin A1 using alligator clips:
-     - Longer leg (positive) to A1 through a 220Ω resistor
-     - Shorter leg (negative) to GND
-   - Connect the second LED to pin A2 the same way:
-     - Longer leg (positive) to A2 through a 220Ω resistor
-     - Shorter leg (negative) to GND
-   - These will be your snowman's eyes
+   - Connect both LEDs to pin A3 using alligator clips:
+   - One clip attaches the longer leg (positive) one LED to A3
+   - The other clip attaches the shorter leg (negative) the same LED to GND
+   - Add the other LED to the same clips.
+These will be your snowman's eyes
 
 4. Test Your Circuit:
    - Plug in your Circuit Playground Express
@@ -49,8 +46,11 @@ Today, we'll create a glowing snowman that lights up when you press a button. We
 ## Instructions for Age 13
 
 1. Setup Circuit Playground Express:
-   - Follow the basic wiring instructions above
-   - Watch the setup video at: https://www.youtube.com/watch?v=3g-e80RkqtY
+   - Watch the setup [video](https://www.youtube.com/watch?v=3g-e80RkqtY) and follow the basic wiring instructions above
+   - For more control over your LEDs, you can connect them to separate pins:
+   - Connect first LED between A1 and GND
+   - Connect second LED between A2 and GND
+   - This allows you to control each LED independently in your code!
    - Connect board to computer via USB
 
 ### Installing CircuitPython (Do this first!)
@@ -170,7 +170,6 @@ while True:
    - If your LEDs aren't lighting up:
      - Check that the longer leg (positive) is connected to A1 or A2
      - Check that the shorter leg (negative) is connected to GND
-     - Verify the 220Ω resistors are properly connected
      - Make sure your alligator clips have good connections
      - Try swapping the LEDs to see if one might not be working
      - Double-check your code for typos
@@ -194,7 +193,6 @@ while True:
 
 - LEDs not lighting up?
   - Check LED polarity (longer leg to A1/A2)
-  - Verify resistors are properly connected
   - Check alligator clip connections
   - Make sure USB is properly connected
   - Press reset button and try again
@@ -217,7 +215,7 @@ while True:
 - Keep connections secure
 - Adult supervision for tools
 - Keep track of small parts
-- Never connect LEDs directly to pins without resistors
+- Typically, you ever connect LEDs directly to pins without resistors. However, the circuit playground express has resistors built in!
 
 ## Parent Notes
 1. Software Setup (Do this before the activity):
@@ -232,4 +230,3 @@ while True:
    - Assist with USB connection
    - Monitor tool usage
    - For 13-year-olds, help with initial programming setup
-   - Ensure proper resistor usage with LEDs
