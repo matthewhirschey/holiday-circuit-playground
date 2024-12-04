@@ -219,11 +219,9 @@ while True:
 
 ## Parent Notes
 1. Software Setup (Do this before the activity):
-   - Visit https://circuitpython.org/board/circuitplayground_express/
-   - Download the latest CircuitPython UF2 file
-   - Connect the board and drag the UF2 file to the CPLAYBOOT drive
-   - Download the basic LED control file from: [Link to be provided]
-   - Drag the file to the CIRCUITPY drive
+   - Download the [basic LED control file](code/circuitplayground-day3.uf2) from the day 4 code directory
+   - Connect the board
+   - Drag the UF2 file to the CPLAYBOOT drive
 
 2. Additional Support:
    - Guide circuit testing
