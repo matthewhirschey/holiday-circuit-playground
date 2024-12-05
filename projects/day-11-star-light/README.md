@@ -1,145 +1,146 @@
-# Day 11: Twinkling Star Light
+# Day 11: Magnetic Holiday Cards
 
 ## Overview
-Today we'll create a light-responsive star that changes brightness based on ambient light! Using a light sensor with our Circuit Playground Express, we'll make our star glow brighter in darker rooms. The younger group will learn about light sensing, while the older group will program adaptive light patterns.
+Today we'll create holiday cards that light up when you open them using a magnetic contact switch! The switch has two parts - one part stays on your card while the other moves away when opened. We'll learn how to use this to trigger lights and sounds.
 
 ## Materials Needed
 - Circuit Playground Express
-- Light Sensor
-- NeoPixel Jewel
-- Mini Breadboard (from previous days)
-- Jumper Wires (5-6 needed for all connections)
-- Star template or decoration materials
+- Magnetic Contact Switch (door sensor)
+- NeoPixel Strip or Jewel (from previous days)
+- Choice of connection method:
+  - 2 Alligator clips (for 9-year-olds)
+  - OR Mini breadboard and jumper wires (for 13-year-olds)
+- Cardstock (sturdy type for cards)
+- Tape or mounting supplies
+- Decorating materials
 
-## Instructions for Age 9
+## Understanding Your Magnetic Switch
+- Look at your switch:
+  - Switch part (has wires)
+  - Magnet part (separate piece)
+  - They work together!
+- The switch has:
+  - Two white wires
+  - No polarity (either wire works for either connection)
+  - Plastic mounting cases
 
-1. Understand Your Light Sensor:
-   - Look at your light sensor - it has 3 pins:
-     - VCC (power)
-     - GND (ground)
-     - OUT (signal)
-   - The sensor detects brightness levels
+## Instructions for Age 9 (Alligator Clip Method)
 
-2. Set Up Breadboard:
-   - Power rails (like previous days):
-     - Red jumper wire from 3.3V to red (+) rail
-     - Black jumper wire from GND to blue (-) rail
+1. Prepare Your Card:
+   - Fold sturdy cardstock in half
+   - Plan where switch will go (near fold)
+   - Plan where magnet will go (opposite side)
+   - Draw or decorate your design
 
-3. Connect Light Sensor:
-   - Place sensor in breadboard
-   - Connect power:
-     - VCC pin to + rail using jumper
-     - GND pin to - rail using jumper
-   - Connect signal:
-     - OUT pin to A1 using jumper
+2. Connect Switch:
+   - Clip one wire to Circuit Playground GND
+   - Clip other wire to Circuit Playground A1
+   - Test clips are secure
 
-4. Add NeoPixel Jewel:
-   - Power:
-     - Connect + to red rail
-     - Connect - to blue rail
-   - Signal:
-     - Connect data pin to A2
+3. Mount Components:
+   - Tape switch part to one side
+   - Tape magnet part to other side
+   - Make sure they line up when closed
+   - Keep wires neat with tape
 
-5. Create Your Star:
-   - Cut out star shape
-   - Place NeoPixel Jewel in center
-   - Position light sensor near edge
-   - Add decorations
+4. Test Your Card:
+   - Close card - lights off
+   - Open card - lights on!
+   - Try different opening angles
 
-6. Test Your Star:
-   - Cover sensor - lights get brighter
-   - Shine light - lights dim
-   - Wave hand over sensor to see changes
+## Instructions for Age 13 (Breadboard Method)
 
-## Instructions for Age 13
+1. Breadboard Setup:
+   - Set up power rails:
+     - Red jumper to 3.3V
+     - Black jumper to GND
+   - Place switch wires in breadboard:
+     - One wire to GND rail
+     - Other wire to empty row
+   - Connect empty row to A1 with jumper
 
-1. Hardware Setup:
-   - Follow basic connection steps
-   - Consider sensor placement for best readings
-   - Plan wire routing for clean look
+2. Create Interactive Card:
+   - Design card layout
+   - Plan component placement
+   - Mount switch and magnet
+   - Route wires cleanly
 
-2. Basic Light Sensing Code:
+3. Basic Code Example:
 ```python
 import time
 import board
-import analogio
+import digitalio
 import neopixel
 
-# Set up the light sensor
-light_sensor = analogio.AnalogIn(board.A1)
+# Set up the magnetic switch
+switch = digitalio.DigitalInOut(board.A1)
+switch.direction = digitalio.Direction.INPUT
+switch.pull = digitalio.Pull.UP
 
-# Set up NeoPixel Jewel
-jewel = neopixel.NeoPixel(board.A2, 7, brightness=0.3)
-
-def get_light_level():
-    """Convert raw light reading to percentage"""
-    return (light_sensor.value / 65535) * 100
+# Set up NeoPixels (if using)
+pixels = neopixel.NeoPixel(board.A2, 8, brightness=0.3)
 
 # Main loop
 while True:
-    light = get_light_level()
-    # Inverse relationship: darker = brighter
-    brightness = 1.0 - (light / 100)
-    jewel.brightness = max(0.1, min(1.0, brightness))
-    jewel.fill((255, 255, 255))  # White light
+    if not switch.value:  # Card is open
+        pixels.fill((255, 255, 255))  # Turn on lights
+    else:
+        pixels.fill((0, 0, 0))       # Turn off lights
     time.sleep(0.1)
 ```
 
-3. Advanced Features:
-```python
-def smooth_brightness(current, target, step=0.05):
-    """Smoothly adjust brightness"""
-    if current < target:
-        return min(current + step, target)
-    else:
-        return max(current - step, target)
+## Mounting Tips
 
-def color_from_light(light_level):
-    """Change color based on light level"""
-    if light_level < 30:  # Dark
-        return (255, 200, 50)  # Warm white
-    elif light_level < 70:  # Medium
-        return (255, 255, 255)  # Pure white
-    else:  # Bright
-        return (200, 200, 255)  # Cool white
-```
+1. Switch Placement:
+   - Mount near card fold
+   - Keep wires from bending sharply
+   - Use tape on plastic housing
+   - Don't cover sensor area
+
+2. Magnet Placement:
+   - Line up with switch
+   - Test alignment
+   - Secure firmly
+   - Mark for proper closing
 
 ## Testing and Troubleshooting
 
 ### For 9-Year-Olds:
-1. Star Not Responding?
-   - Check sensor connections
-   - Verify power to sensor
-   - Test in different light levels
-   - Try moving sensor
+1. Not Working?
+   - Check clip connections
+   - Verify magnet alignment
+   - Test different positions
+   - Make sure card closes fully
 
 ### For 13-Year-Olds:
-1. Sensor Issues?
-   - Debug readings in serial monitor
-   - Check analog conversion
-   - Test brightness calculations
-   - Verify update timing
+1. Circuit Issues?
+   - Check breadboard connections
+   - Verify code is loaded
+   - Test switch position
+   - Debug with print statements
 
-## Light Sensor Tips
+## Project Ideas
 
-1. Understanding Readings:
-   - Higher value = more light
-   - Lower value = less light
-   - Values can vary by environment
+### For 9-Year-Olds:
+1. Light-up greeting card
+2. Secret message revealer
+3. Musical holiday card
+4. Magic door indicator
 
-2. Best Practices:
-   - Keep sensor clean
-   - Avoid direct light source
-   - Allow for ambient light changes
+### For 13-Year-Olds:
+1. Multi-zone card with patterns
+2. Sound and light show
+3. Holiday door monitor
+4. Sequential light display
 
 ## Safety Notes
-- Handle sensor carefully
-- Keep connections secure
-- Mind wire placement
-- Protect from moisture
+- Handle magnets carefully
+- Don't bend wires sharply
+- Keep wire connections neat
+- Mind small parts
 
 ## Parent Notes
-- Help with sensor positioning
-- Guide testing process
-- Support troubleshooting
-- Assist with calibration
+- Help with mounting
+- Guide wire handling
+- Assist with testing
+- Support creativity
