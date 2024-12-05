@@ -1,4 +1,4 @@
-# Day 13: Rudolph's Glowing Nose
+# Day 16: Rudolph's Glowing Nose
 
 ## Overview
 Today we'll create Rudolph's famous glowing nose using a NeoPixel Jewel! We'll learn two different ways to connect our NeoPixel: a simple way with alligator clips for younger makers, and a more advanced breadboard method for older makers.

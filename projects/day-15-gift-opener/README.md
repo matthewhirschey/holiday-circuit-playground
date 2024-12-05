@@ -1,4 +1,4 @@
-# Day 12: Infrared Gift Opener
+# Day 15: Infrared Gift Opener
 
 ## Overview
 Today we'll create an infrared remote control! Using an IR LED, we'll learn about invisible light communication. The younger group will create a simple remote control, while the older group will program custom IR signals and patterns.

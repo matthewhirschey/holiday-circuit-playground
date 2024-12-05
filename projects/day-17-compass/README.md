@@ -1,4 +1,4 @@
-# Day 21: Compass to the North Pole
+# Day 17: Compass to the North Pole
 
 ## Overview
 Today we'll create a compass that can help find the North Pole! Using the LSM303AGR sensor, we'll detect magnetic fields to find which way is north. The younger group will create a basic compass, while the older group will program advanced direction finding.

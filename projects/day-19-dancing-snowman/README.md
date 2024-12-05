@@ -1,4 +1,4 @@
-# Day 18: Dancing Snowman
+# Day 19: Dancing Snowman
 
 ## Overview
 Today we'll create a dancing snowman using two servo motors! Building on our servo experience from Day 7, we'll make more complex movements. The younger group will coordinate basic dance moves, while the older group will program advanced motion sequences.

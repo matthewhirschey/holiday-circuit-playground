@@ -1,4 +1,4 @@
-# Day 15: Candy Cane Lights
+# Day 12: Candy Cane Lights
 
 ## Overview
 Today we'll create a light-up candy cane using NeoPixel Diffused 8mm Through-Hole LEDs! These special LEDs can each change color independently and can be chained together. We'll learn how to connect them properly on a breadboard and create festive patterns.

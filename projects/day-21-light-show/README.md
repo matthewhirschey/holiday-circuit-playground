@@ -1,4 +1,4 @@
-# Day 23: Grand Holiday Light Show
+# Day 21: Grand Holiday Light Show
 
 ## Overview
 Today we'll create a spectacular light show using a 24-LED NeoPixel Ring! This project combines all our LED skills from throughout the month to create amazing circular animations. The younger group will create festive patterns, while the older group will program complex synchronized displays.

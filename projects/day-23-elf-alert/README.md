@@ -1,7 +1,7 @@
-# Day 22: Elf on the Shelf Alert
+# Day 23: Elf on the Shelf Alert
 
 ## Overview
-Today we'll create a multi-zone motion detection system for catching elves in action! Building on our PIR sensor experience from Day 8, we'll use multiple sensors to monitor different areas. The younger group will set up basic detection zones, while the older group will program complex monitoring patterns.
+Today we'll create a multi-zone motion detection system for catching elves in action! Building on our PIR sensor experience from Day 14, we'll use multiple sensors to monitor different areas. The younger group will set up basic detection zones, while the older group will program complex monitoring patterns.
 
 ## Materials Needed
 - Circuit Playground Express

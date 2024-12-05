@@ -1,4 +1,4 @@
-# Day 16: Santa's Distance Detector
+# Day 18: Santa's Distance Detector
 
 ## Overview
 Today we'll build a distance sensor using the HC-SR04 ultrasonic sensor! This sensor sends out sound waves we can't hear and measures how long they take to bounce back. We'll learn how to set it up safely and use it to detect when something (or someone!) is nearby.

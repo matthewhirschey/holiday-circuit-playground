@@ -1,4 +1,4 @@
-# Day 19: Frosty's Meltdown Detector
+# Day 20: Frosty's Meltdown Detector
 
 ## Overview
 Create an interactive temperature monitoring system to help keep Frosty the Snowman safe! This project uses the Adafruit HTS221 temperature sensor and NeoPixels to create a visual alert system that warns when conditions might be too warm for Frosty.

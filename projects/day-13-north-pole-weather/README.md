@@ -1,4 +1,4 @@
-# Day 17: Weather at the North Pole
+# Day 13: Weather at the North Pole
 
 ## Overview
 Today we'll create a temperature and humidity monitor using the AM2301B sensor! This pre-wired sensor will help us measure the North Pole's weather conditions. The younger group will learn about environmental sensing, while the older group will program advanced data displays.
