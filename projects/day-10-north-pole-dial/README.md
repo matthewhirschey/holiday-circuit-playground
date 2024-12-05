@@ -1,163 +1,145 @@
-# Day 10: Interactive North Pole Dial
+# Day 10: Twinkling Star Light
 
 ## Overview
-Today we'll create a rotary control interface using an encoder - like a digital knob for our projects! We'll use the encoder to control lights and make interactive displays. The younger group will learn about rotary input, while the older group will program complex control patterns.
+Today we'll create a light-responsive star that changes brightness based on ambient light! Using a light sensor with our Circuit Playground Express, we'll make our star glow brighter in darker rooms. The younger group will learn about light sensing, while the older group will program adaptive light patterns.
 
 ## Materials Needed
 - Circuit Playground Express
-- Rotary Encoder with Pushbutton
+- Light Sensor
+- NeoPixel Jewel
 - Mini Breadboard (from previous days)
-- Jumper Wires (at least 5: power, ground, and 3 signals)
-- NeoPixel Strip or Jewel (optional for display)
+- Jumper Wires (5-6 needed for all connections)
+- Star template or decoration materials
 
 ## Instructions for Age 9
 
-1. Understand Your Rotary Encoder:
-   - Look at the encoder pins:
-     - CLK (Pin A) - First signal pin
-     - DT (Pin B) - Second signal pin
-     - SW - Button signal pin
-     - GND - Ground connection
-     - + - Power connection (if present)
-   - Notice how it clicks when you turn it
-   - Try pressing the button on top
+1. Understand Your Light Sensor:
+   - Look at your light sensor - it has 3 pins:
+     - VCC (power)
+     - GND (ground)
+     - OUT (signal)
+   - The sensor detects brightness levels
 
 2. Set Up Breadboard:
    - Power rails (like previous days):
      - Red jumper wire from 3.3V to red (+) rail
      - Black jumper wire from GND to blue (-) rail
 
-3. Connect Encoder:
-   - Place encoder in breadboard
+3. Connect Light Sensor:
+   - Place sensor in breadboard
    - Connect power:
-     - GND pin to - rail
-     - + pin to + rail (if present)
-   - Connect signals:
-     - CLK (Pin A) to A1 using jumper wire
-     - DT (Pin B) to A2 using jumper wire
-     - SW (button) to A3 using jumper wire
+     - VCC pin to + rail using jumper
+     - GND pin to - rail using jumper
+   - Connect signal:
+     - OUT pin to A1 using jumper
 
-4. Add Display (Optional):
-   - Connect NeoPixel:
-     - Power to + rail
-     - Ground to - rail
-     - Signal to A4
+4. Add NeoPixel Jewel:
+   - Power:
+     - Connect + to red rail
+     - Connect - to blue rail
+   - Signal:
+     - Connect data pin to A2
 
-5. Test Your Control:
-   - Turn knob right: Change colors
-   - Turn knob left: Change brightness
-   - Press knob: Special effect!
+5. Create Your Star:
+   - Cut out star shape
+   - Place NeoPixel Jewel in center
+   - Position light sensor near edge
+   - Add decorations
+
+6. Test Your Star:
+   - Cover sensor - lights get brighter
+   - Shine light - lights dim
+   - Wave hand over sensor to see changes
 
 ## Instructions for Age 13
 
 1. Hardware Setup:
    - Follow basic connection steps
-   - Ensure encoder is stable in breadboard
-   - Consider clean wire routing
+   - Consider sensor placement for best readings
+   - Plan wire routing for clean look
 
-2. Basic Encoder Code:
+2. Basic Light Sensing Code:
 ```python
 import time
 import board
-import digitalio
+import analogio
+import neopixel
 
-# Set up encoder pins
-clk = digitalio.DigitalInOut(board.A1)
-dt = digitalio.DigitalInOut(board.A2)
-sw = digitalio.DigitalInOut(board.A3)
+# Set up the light sensor
+light_sensor = analogio.AnalogIn(board.A1)
 
-clk.direction = digitalio.Direction.INPUT
-dt.direction = digitalio.Direction.INPUT
-sw.direction = digitalio.Direction.INPUT
-sw.pull = digitalio.Pull.UP
+# Set up NeoPixel Jewel
+jewel = neopixel.NeoPixel(board.A2, 7, brightness=0.3)
 
-# Track encoder position
-encoder_pos = 0
-last_clk = clk.value
+def get_light_level():
+    """Convert raw light reading to percentage"""
+    return (light_sensor.value / 65535) * 100
 
 # Main loop
 while True:
-    # Read encoder
-    current_clk = clk.value
-    if current_clk != last_clk:
-        if dt.value != current_clk:
-            encoder_pos += 1
-        else:
-            encoder_pos -= 1
-        print(f"Position: {encoder_pos}")
-    last_clk = current_clk
-    
-    # Check button
-    if not sw.value:
-        print("Button pressed!")
-        time.sleep(0.2)  # Debounce
-    
-    time.sleep(0.01)
+    light = get_light_level()
+    # Inverse relationship: darker = brighter
+    brightness = 1.0 - (light / 100)
+    jewel.brightness = max(0.1, min(1.0, brightness))
+    jewel.fill((255, 255, 255))  # White light
+    time.sleep(0.1)
 ```
 
 3. Advanced Features:
 ```python
-class DialControl:
-    def __init__(self):
-        # Track state
-        self.position = 0
-        self.mode = 0
-        self.brightness = 0.3
-        self.last_button = time.monotonic()
-        
-    def update_from_encoder(self, direction):
-        """Handle encoder movement"""
-        if self.mode == 0:  # Color mode
-            self.position = (self.position + direction) % 255
-        else:  # Brightness mode
-            self.brightness = max(0.1, min(1.0, 
-                self.brightness + direction * 0.05))
-    
-    def handle_button(self):
-        """Handle button press"""
-        current = time.monotonic()
-        if current - self.last_button > 0.2:  # Debounce
-            self.mode = (self.mode + 1) % 2
-            self.last_button = current
-            return True
-        return False
+def smooth_brightness(current, target, step=0.05):
+    """Smoothly adjust brightness"""
+    if current < target:
+        return min(current + step, target)
+    else:
+        return max(current - step, target)
+
+def color_from_light(light_level):
+    """Change color based on light level"""
+    if light_level < 30:  # Dark
+        return (255, 200, 50)  # Warm white
+    elif light_level < 70:  # Medium
+        return (255, 255, 255)  # Pure white
+    else:  # Bright
+        return (200, 200, 255)  # Cool white
 ```
 
 ## Testing and Troubleshooting
 
 ### For 9-Year-Olds:
-1. Encoder Not Working?
-   - Check all wire connections
-   - Verify power connections
-   - Make sure encoder is fully inserted
-   - Try turning slower
+1. Star Not Responding?
+   - Check sensor connections
+   - Verify power to sensor
+   - Test in different light levels
+   - Try moving sensor
 
 ### For 13-Year-Olds:
-1. Code Issues?
-   - Debug encoder readings
-   - Check pin assignments
-   - Verify state tracking
-   - Test button debouncing
+1. Sensor Issues?
+   - Debug readings in serial monitor
+   - Check analog conversion
+   - Test brightness calculations
+   - Verify update timing
 
-## Tips for Success
-1. Understanding Rotation:
-   - Clockwise usually increases values
-   - Counter-clockwise decreases
-   - Button press can switch modes
+## Light Sensor Tips
 
-2. Clean Code:
-   - Track last position
-   - Debounce button presses
-   - Use modes for different controls
+1. Understanding Readings:
+   - Higher value = more light
+   - Lower value = less light
+   - Values can vary by environment
+
+2. Best Practices:
+   - Keep sensor clean
+   - Avoid direct light source
+   - Allow for ambient light changes
 
 ## Safety Notes
-- Handle encoder gently
-- Don't force connections
-- Keep wires organized
-- Mind the polarity
+- Handle sensor carefully
+- Keep connections secure
+- Mind wire placement
+- Protect from moisture
 
 ## Parent Notes
-- Help with initial wiring
-- Guide encoder usage
-- Assist with testing
-- Support exploration
+- Help with sensor positioning
+- Guide testing process
+- Support troubleshooting
+- Assist with calibration
