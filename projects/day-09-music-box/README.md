@@ -1,133 +1,163 @@
-# Day 9: Holiday Music Box
+# Day 9: Interactive North Pole Dial
 
 ## Overview
-Today we'll create a holiday music box using the STEMMA Speaker! Building on our breadboard experience from previous days, we'll add sound to our projects. The younger group will play pre-made sounds, while the older group will program custom tunes.
+Today we'll create a rotary control interface using an encoder - like a digital knob for our projects! We'll use the encoder to control lights and make interactive displays. The younger group will learn about rotary input, while the older group will program complex control patterns.
 
 ## Materials Needed
 - Circuit Playground Express
-- STEMMA Speaker
-- STEMMA JST PH 2mm 3-Pin to Male Header Cable (200mm)
+- Rotary Encoder with Pushbutton
 - Mini Breadboard (from previous days)
-- Jumper Wires (for power rails)
-- USB Cable
+- Jumper Wires (at least 5: power, ground, and 3 signals)
+- NeoPixel Strip or Jewel (optional for display)
 
 ## Instructions for Age 9
 
-1. Understand Your STEMMA Speaker:
-   - Look at the speaker unit
-   - Find the JST connector socket (3 pins)
-   - Connect the JST to Male Header Cable:
-     - It only fits one way!
-     - Cable has three wires:
-       - Red wire (power - 3.3V)
-       - Black wire (ground)
-       - White wire (audio signal)
+1. Understand Your Rotary Encoder:
+   - Look at the encoder pins:
+     - CLK (Pin A) - First signal pin
+     - DT (Pin B) - Second signal pin
+     - SW - Button signal pin
+     - GND - Ground connection
+     - + - Power connection (if present)
+   - Notice how it clicks when you turn it
+   - Try pressing the button on top
 
 2. Set Up Breadboard:
    - Power rails (like previous days):
      - Red jumper wire from 3.3V to red (+) rail
      - Black jumper wire from GND to blue (-) rail
 
-3. Connect Speaker:
-   - Insert the 3 male header pins into breadboard:
-     - Red wire to row connected to + rail
-     - Black wire to row connected to - rail
-     - White wire to empty row
-   - Connect white wire row to A1 using a jumper wire
+3. Connect Encoder:
+   - Place encoder in breadboard
+   - Connect power:
+     - GND pin to - rail
+     - + pin to + rail (if present)
+   - Connect signals:
+     - CLK (Pin A) to A1 using jumper wire
+     - DT (Pin B) to A2 using jumper wire
+     - SW (button) to A3 using jumper wire
 
-4. Test Your Speaker:
-   - Press button A to play tone sequence
-   - Press button B for different tones
-   - Both buttons for special tune!
-   - Use switch to adjust volume on CPX
-   - Can also adjust speaker volume with small screwdriver
+4. Add Display (Optional):
+   - Connect NeoPixel:
+     - Power to + rail
+     - Ground to - rail
+     - Signal to A4
+
+5. Test Your Control:
+   - Turn knob right: Change colors
+   - Turn knob left: Change brightness
+   - Press knob: Special effect!
 
 ## Instructions for Age 13
 
 1. Hardware Setup:
    - Follow basic connection steps
-   - Ensure solid breadboard connections
-   - Consider speaker placement for best sound
-   - Test different volume levels
+   - Ensure encoder is stable in breadboard
+   - Consider clean wire routing
 
-2. Basic Sound Programming:
+2. Basic Encoder Code:
 ```python
 import time
-import array
-import math
 import board
-import audioio
+import digitalio
 
-# Set up audio output on A1
-audio = audioio.AudioOut(board.A1)
+# Set up encoder pins
+clk = digitalio.DigitalInOut(board.A1)
+dt = digitalio.DigitalInOut(board.A2)
+sw = digitalio.DigitalInOut(board.A3)
 
-def generate_sine_wave(frequency, length):
-    """Generate a sine wave at given frequency"""
-    length = int(length * 8000)
-    sine_wave = array.array('H', [0] * length)
-    for i in range(length):
-        sine_wave[i] = int(math.sin(math.pi * 2 * i / length) * 32767 + 32767)
-    return audioio.RawSample(sine_wave)
+clk.direction = digitalio.Direction.INPUT
+dt.direction = digitalio.Direction.INPUT
+sw.direction = digitalio.Direction.INPUT
+sw.pull = digitalio.Pull.UP
+
+# Track encoder position
+encoder_pos = 0
+last_clk = clk.value
+
+# Main loop
+while True:
+    # Read encoder
+    current_clk = clk.value
+    if current_clk != last_clk:
+        if dt.value != current_clk:
+            encoder_pos += 1
+        else:
+            encoder_pos -= 1
+        print(f"Position: {encoder_pos}")
+    last_clk = current_clk
+    
+    # Check button
+    if not sw.value:
+        print("Button pressed!")
+        time.sleep(0.2)  # Debounce
+    
+    time.sleep(0.01)
 ```
 
 3. Advanced Features:
 ```python
-# Musical notes (frequency in Hz)
-NOTES = {
-    'C4': 262,
-    'D4': 294,
-    'E4': 330,
-    'F4': 349,
-    'G4': 392,
-    'A4': 440,
-    'B4': 494,
-    'C5': 523
-}
-
-def play_tone(frequency, duration):
-    """Play a single tone"""
-    # Generate and play tone
-    sine_wave = generate_sine_wave(frequency, duration)
-    audio.play(sine_wave)
-    time.sleep(duration)
+class DialControl:
+    def __init__(self):
+        # Track state
+        self.position = 0
+        self.mode = 0
+        self.brightness = 0.3
+        self.last_button = time.monotonic()
+        
+    def update_from_encoder(self, direction):
+        """Handle encoder movement"""
+        if self.mode == 0:  # Color mode
+            self.position = (self.position + direction) % 255
+        else:  # Brightness mode
+            self.brightness = max(0.1, min(1.0, 
+                self.brightness + direction * 0.05))
+    
+    def handle_button(self):
+        """Handle button press"""
+        current = time.monotonic()
+        if current - self.last_button > 0.2:  # Debounce
+            self.mode = (self.mode + 1) % 2
+            self.last_button = current
+            return True
+        return False
 ```
 
 ## Testing and Troubleshooting
 
 ### For 9-Year-Olds:
-1. No Sound?
-   - Check JST cable connection
-   - Verify breadboard connections
-   - Try adjusting both volume controls
-   - Make sure code is loaded
+1. Encoder Not Working?
+   - Check all wire connections
+   - Verify power connections
+   - Make sure encoder is fully inserted
+   - Try turning slower
 
 ### For 13-Year-Olds:
-1. Audio Issues?
-   - Test power connections
-   - Debug signal routing
-   - Verify audio timing
-   - Check for code errors
+1. Code Issues?
+   - Debug encoder readings
+   - Check pin assignments
+   - Verify state tracking
+   - Test button debouncing
 
-## Sound Programming Tips
-1. Basic Tones:
-   - Use simple frequencies first
-   - Test different durations
-   - Start with short sequences
+## Tips for Success
+1. Understanding Rotation:
+   - Clockwise usually increases values
+   - Counter-clockwise decreases
+   - Button press can switch modes
 
-2. Advanced Sounds:
-   - Combine multiple tones
-   - Create rhythm patterns
-   - Add volume control
-   - Mix different frequencies
+2. Clean Code:
+   - Track last position
+   - Debounce button presses
+   - Use modes for different controls
 
 ## Safety Notes
-- Handle JST connector carefully
-- Keep speaker volume reasonable
-- Insert header pins straight
-- Protect speaker from damage
+- Handle encoder gently
+- Don't force connections
+- Keep wires organized
+- Mind the polarity
 
 ## Parent Notes
-- Help with JST connection
-- Guide breadboard setup
-- Monitor volume levels
-- Support sound exploration
+- Help with initial wiring
+- Guide encoder usage
+- Assist with testing
+- Support exploration
