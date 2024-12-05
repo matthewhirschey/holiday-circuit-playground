@@ -1,190 +1,235 @@
-# Day 20: Tree Upgrade and Holiday Train
+# Day 20: Holiday Message Board
 
 ## Overview
-Today we'll upgrade our tree from Day 3 by adding Circuit Playground Express control and a holiday train running around the base! We'll modify our existing circuits, add proper current limiting for the LEDs, and create a moving train effect with a NeoPixel Ring.
+Transform your 1.3" OLED display into a festive message board! This project creates an interactive display that can show scrolling holiday messages, custom icons, and animated text. Perfect for spreading holiday cheer or leaving fun messages for family members.
 
 ## Materials Needed
-- Your tree from Day 3
 - Circuit Playground Express
-- NeoPixel Ring (16 or 24 LEDs)
-- 220Ω resistors (one for each LED on tree)
-- Mini Breadboard
-- Alligator Clips
-- Cardboard/paper for train track
-- Decorative materials
+- 1.3" 128x64 OLED Display (Adafruit #938)
+- STEMMA QT / Qwiic JST SH Cable
+- Mini Breadboard (optional)
+- Jumper Wires (if not using STEMMA QT)
+- USB Cable for programming
 
-## Instructions for Age 9
+## Setup
 
-1. Prepare Your Tree:
-   - Get your tree from Day 3
-   - We'll modify the LED connections
-   - Keep the switch in place
+### For 9-Year-Olds
+1. Connect Display:
+   - Plug one end of STEMMA QT cable into OLED display
+   - Connect other end to Circuit Playground Express
+   - Display should light up when powered!
 
-2. Add Resistors:
-   - One at a time, disconnect each LED from copper tape
-   - Add a resistor to the positive leg
-   - Reconnect with alligator clips
-   - This protects the LEDs!
+2. Basic Display Test:
+   - Upload test code to see the display working
+   - Try different messages
+   - Learn about text size and position
 
-3. Connect to Circuit Playground:
-   - LED 1 to pin A1
-   - LED 2 to pin A2
-   - LED 3 to pin A3
-   - All negative legs to GND
+3. Create Message List:
+   - Think of fun holiday messages
+   - Keep them short enough to fit
+   - Include some holiday emojis
 
-4. Create Train Track:
-   - Cut a circle from cardboard
-   - Decorate as train track
-   - Add snow, trees, etc.
+### For 13-Year-Olds
+1. Advanced Setup:
+   - Configure I2C connection
+   - Set up multiple font options
+   - Create custom holiday icons
+   - Plan message animations
 
-5. Add Train (NeoPixel Ring):
-   - Place ring around track
-   - Connect power to 3.3V
-   - Connect ground to GND
-   - Connect data to A4
-
-6. Test Your Display:
-   - Tree lights twinkle
-   - Train moves around track
-   - Switch changes patterns
-   - Everything works together!
-
-## Instructions for Age 13
-
-1. Modify Tree Circuits:
-   - Follow basic upgrade steps
-   - Plan wire routing carefully
-   - Consider adding more LEDs
-
-2. Basic Train Code:
+2. Basic Message Board Code:
 ```python
-import time
 import board
-import neopixel
+import displayio
+import terminalio
+import adafruit_displayio_ssd1306
+from adafruit_display_text import label
+
+# Release any resources currently in use for the displays
+displayio.release_displays()
+
+# Set up I2C
+i2c = board.I2C()
+display_bus = displayio.I2CDisplay(i2c, device_address=0x3C)
+
+# Set up the display (128x64 pixels)
+WIDTH = 128
+HEIGHT = 64
+display = adafruit_displayio_ssd1306.SSD1306(display_bus, width=WIDTH, height=HEIGHT)
+
+# Create the display context
+main_group = displayio.Group()
+display.show(main_group)
+
+# List of holiday messages
+messages = [
+    "Happy Holidays!",
+    "Joy to the World",
+    "Let it Snow!",
+    "Season's Greetings",
+    "Be Merry & Bright"
+]
+
+# Basic text display function
+def show_message(message, size=1):
+    # Create a text label
+    text_area = label.Label(
+        terminalio.FONT,
+        text=message,
+        color=0xFFFFFF,
+        x=0,
+        y=HEIGHT//2
+    )
+    
+    # Scale the text
+    text_area.scale = size
+    
+    # Clear the display
+    while len(main_group) > 0:
+        main_group.pop()
+        
+    # Add the text
+    main_group.append(text_area)
+
+# Button handler for Circuit Playground Express
 from adafruit_circuitplayground import cp
+current_message = 0
 
-# Set up NeoPixel Ring
-train = neopixel.NeoPixel(board.A4, 16, brightness=0.3)
-
-# Train colors
-RED = (255, 0, 0)
-WHITE = (255, 255, 255)
-OFF = (0, 0, 0)
-
-def move_train(position):
-    """Create moving train effect"""
-    # Clear all pixels
-    train.fill(OFF)
-    
-    # Red for train body (3 pixels)
-    train[position] = RED
-    train[(position + 1) % 16] = RED
-    train[(position + 2) % 16] = RED
-    
-    # White for headlight
-    train[(position + 3) % 16] = WHITE
-
-# Main loop
-position = 0
 while True:
-    move_train(position)
-    time.sleep(0.1)
-    position = (position + 1) % 16
+    if cp.button_a:
+        current_message = (current_message + 1) % len(messages)
+        show_message(messages[current_message])
+        while cp.button_a:
+            pass  # Wait for button release
 ```
 
-3. Advanced Animation:
+3. Advanced Features:
 ```python
-class HolidayDisplay:
+import time
+import math
+
+class HolidayMessageBoard:
     def __init__(self):
-        # Set up tree LEDs
-        self.tree_leds = []
-        for pin in [board.A1, board.A2, board.A3]:
-            led = digitalio.DigitalInOut(pin)
-            led.direction = digitalio.Direction.OUTPUT
-            self.tree_leds.append(led)
+        # Initialize display setup (as above)
+        self.scroll_pos = 0
+        self.current_message = 0
+        self.animation_frame = 0
         
-        # Set up train
-        self.train = neopixel.NeoPixel(board.A4, 16, brightness=0.3)
-        self.train_pos = 0
-        self.smoke_level = 0
-        self.speed = 0.1
-    
-    def update_train(self):
-        """Update train position and effects"""
-        # Clear previous position
-        self.train.fill(OFF)
-        
-        # Add train body
-        self.train[self.train_pos] = RED
-        self.train[(self.train_pos + 1) % 16] = RED
-        self.train[(self.train_pos + 2) % 16] = RED
-        
-        # Add headlight
-        self.train[(self.train_pos + 3) % 16] = WHITE
-        
-        # Add smoke effect
-        smoke_pos = (self.train_pos - 1) % 16
-        smoke_brightness = abs(math.sin(self.smoke_level))
-        self.train[smoke_pos] = (
-            int(50 * smoke_brightness),
-            int(50 * smoke_brightness),
-            int(50 * smoke_brightness)
+    def scroll_text(self, message):
+        """Scroll text across the display"""
+        text_area = label.Label(
+            terminalio.FONT,
+            text=message,
+            color=0xFFFFFF,
+            x=WIDTH - self.scroll_pos,
+            y=HEIGHT//2
         )
         
-        # Update position
-        self.train_pos = (self.train_pos + 1) % 16
-        self.smoke_level += 0.2
+        while len(main_group) > 0:
+            main_group.pop()
+            
+        main_group.append(text_area)
+        self.scroll_pos = (self.scroll_pos + 2) % (WIDTH + text_area.width)
+        
+    def add_holiday_icon(self, icon_type):
+        """Add holiday icons to display"""
+        # Icon coordinates for different holiday symbols
+        icons = {
+            'tree': [(64, 10), (60, 15), (68, 15), (56, 20), 
+                    (72, 20), (64, 5)],
+            'star': [(64, 5), (60, 15), (50, 15), (58, 20),
+                    (55, 30), (64, 25), (73, 30), (70, 20),
+                    (78, 15), (68, 15)],
+            'gift': [(60, 40), (68, 40), (64, 35), (64, 45)]
+        }
+        
+        if icon_type in icons:
+            # Create bitmap for icon
+            bitmap = displayio.Bitmap(WIDTH, HEIGHT, 1)
+            for x, y in icons[icon_type]:
+                bitmap[x, y] = 1
+            
+            # Create palette
+            palette = displayio.Palette(2)
+            palette[0] = 0x000000
+            palette[1] = 0xFFFFFF
+            
+            # Create TileGrid
+            icon_grid = displayio.TileGrid(bitmap, pixel_shader=palette)
+            main_group.append(icon_grid)
     
-    def tree_pattern(self):
-        """Create tree light pattern"""
-        for led in self.tree_leds:
-            led.value = random.random() > 0.5
-    
-    def run_display(self):
-        """Main update loop"""
-        self.update_train()
-        if time.monotonic() % 1 < 0.5:  # Update tree every half second
-            self.tree_pattern()
+    def animate_snow(self):
+        """Add animated snowflakes"""
+        snow_points = [(x, (y + self.animation_frame) % HEIGHT) 
+                      for x, y in [(20, 10), (40, 30), (80, 15), 
+                                 (100, 25), (60, 40)]]
+        
+        bitmap = displayio.Bitmap(WIDTH, HEIGHT, 1)
+        for x, y in snow_points:
+            bitmap[x, y] = 1
+        
+        palette = displayio.Palette(2)
+        palette[0] = 0x000000
+        palette[1] = 0xFFFFFF
+        
+        snow_grid = displayio.TileGrid(bitmap, pixel_shader=palette)
+        main_group.append(snow_grid)
+        self.animation_frame = (self.animation_frame + 1) % HEIGHT
 ```
 
 ## Testing and Troubleshooting
 
 ### For 9-Year-Olds:
-1. LEDs Not Working?
-   - Check resistor connections
-   - Verify LED direction
-   - Test with alligator clips
-   - Try different LED
+1. Display Issues?
+   - Check cable connections
+   - Make sure display is getting power
+   - Try resetting the board
+   - Verify message length fits screen
 
 ### For 13-Year-Olds:
-1. Animation Issues?
-   - Debug timing
-   - Check array indices
-   - Verify loop conditions
-   - Test components separately
+1. Code Problems?
+   - Check I2C address
+   - Verify display initialization
+   - Test different fonts
+   - Debug animation timing
 
-## Extensions
+## Extension Ideas
 
 ### For 9-Year-Olds:
-1. Add track scenery
-2. Change train colors
-3. Add sound effects
-4. Create station stops
+1. Create themed message sets
+   - Christmas messages
+   - New Year countdown
+   - Winter wonderland themes
+   - Thank you notes
 
 ### For 13-Year-Olds:
-1. Add speed control
-2. Create multiple trains
-3. Add light sensors
-4. Make interactive stations
+1. Add advanced features
+   - Multiple animations
+   - Custom character sets
+   - Interactive games
+   - Temperature display integration
+
+## Message Design Tips
+
+1. Text Layout:
+   - Keep messages readable
+   - Use appropriate font sizes
+   - Consider screen space
+   - Plan message timing
+
+2. Animations:
+   - Smooth scrolling
+   - Consistent timing
+   - Clear transitions
+   - Engaging effects
 
 ## Safety Notes
-- Handle modifications carefully
-- Mind the LED polarity
-- Don't remove necessary parts
-- Keep connections secure
+- Handle display carefully
+- Protect from static
+- Secure connections
+- Monitor power usage
 
 ## Parent Notes
-- Help with circuit changes
-- Guide resistor addition
-- Support track building
-- Assist with testing
+- Help with message ideas
+- Guide font selection
+- Assist with timing
+- Support creativity
