@@ -1,126 +1,133 @@
-# Day 8: Reindeer Tracks Detector
+# Day 8: Holiday Music Box
 
 ## Overview
-Today we'll build a motion detector that lights up when it senses movement - perfect for spotting reindeer! Using a PIR (Passive Infrared) Motion Sensor with our Circuit Playground Express, we'll detect motion and create light displays. The younger group will learn about motion detection, while the older group will program custom reactions.
+Today we'll create a holiday music box using the STEMMA Speaker! Building on our breadboard experience from previous days, we'll add sound to our projects. The younger group will play pre-made sounds, while the older group will program custom tunes.
 
 ## Materials Needed
 - Circuit Playground Express
-- PIR Motion Sensor
-- NeoPixel Jewel
-- Mini Breadboard (from Day 6)
-- Jumper Wires (6 needed: 2 sets of power, ground, signal)
+- STEMMA Speaker
+- STEMMA JST PH 2mm 3-Pin to Male Header Cable (200mm)
+- Mini Breadboard (from previous days)
+- Jumper Wires (for power rails)
 - USB Cable
 
 ## Instructions for Age 9
 
-1. Understand Your PIR Sensor:
-   - Look at the sensor dome on top
-   - Find the three pins on bottom:
-     - VCC (power)
-     - GND (ground)
-     - OUT (signal)
-   - Notice adjustment dials on back
+1. Understand Your STEMMA Speaker:
+   - Look at the speaker unit
+   - Find the JST connector socket (3 pins)
+   - Connect the JST to Male Header Cable:
+     - It only fits one way!
+     - Cable has three wires:
+       - Red wire (power - 3.3V)
+       - Black wire (ground)
+       - White wire (audio signal)
 
 2. Set Up Breadboard:
-   - Power rails (like Days 6-7):
+   - Power rails (like previous days):
      - Red jumper wire from 3.3V to red (+) rail
      - Black jumper wire from GND to blue (-) rail
 
-3. Connect PIR Sensor:
-   - Place sensor in breadboard
-   - Connect to power:
-     - Jumper from + rail to VCC pin
-     - Jumper from - rail to GND pin
-   - Connect signal:
-     - Jumper from OUT pin to A1
+3. Connect Speaker:
+   - Insert the 3 male header pins into breadboard:
+     - Red wire to row connected to + rail
+     - Black wire to row connected to - rail
+     - White wire to empty row
+   - Connect white wire row to A1 using a jumper wire
 
-4. Add NeoPixel Jewel:
-   - Connect to power:
-     - Red wire to + rail
-     - Black wire to - rail
-   - Connect signal:
-     - Data wire to A2
-
-5. Test Your Detector:
-   - When motion is detected:
-     - Built-in LED on sensor lights
-     - NeoPixel Jewel shows pattern
-   - No motion:
-     - Lights turn off
+4. Test Your Speaker:
+   - Press button A to play tone sequence
+   - Press button B for different tones
+   - Both buttons for special tune!
+   - Use switch to adjust volume on CPX
+   - Can also adjust speaker volume with small screwdriver
 
 ## Instructions for Age 13
 
 1. Hardware Setup:
    - Follow basic connection steps
-   - Consider sensor placement
-   - Use colored jumpers to stay organized:
-     - Red for power (VCC)
-     - Black for ground (GND)
-     - Different color for signals
+   - Ensure solid breadboard connections
+   - Consider speaker placement for best sound
+   - Test different volume levels
 
-2. Basic Motion Code:
+2. Basic Sound Programming:
 ```python
 import time
+import array
+import math
 import board
-import digitalio
-import neopixel
+import audioio
 
-# Set up the PIR sensor
-pir = digitalio.DigitalInOut(board.A1)
-pir.direction = digitalio.Direction.INPUT
+# Set up audio output on A1
+audio = audioio.AudioOut(board.A1)
 
-# Set up NeoPixel Jewel
-jewel = neopixel.NeoPixel(board.A2, 7, brightness=0.3)
-
-# Main detection loop
-while True:
-    if pir.value:  # Motion detected
-        print("Motion detected!")
-        jewel.fill((255, 0, 0))  # Red alert!
-    else:
-        jewel.fill((0, 0, 0))  # Turn off
-    time.sleep(0.1)
+def generate_sine_wave(frequency, length):
+    """Generate a sine wave at given frequency"""
+    length = int(length * 8000)
+    sine_wave = array.array('H', [0] * length)
+    for i in range(length):
+        sine_wave[i] = int(math.sin(math.pi * 2 * i / length) * 32767 + 32767)
+    return audioio.RawSample(sine_wave)
 ```
 
-[Rest of the code sections remain the same...]
+3. Advanced Features:
+```python
+# Musical notes (frequency in Hz)
+NOTES = {
+    'C4': 262,
+    'D4': 294,
+    'E4': 330,
+    'F4': 349,
+    'G4': 392,
+    'A4': 440,
+    'B4': 494,
+    'C5': 523
+}
+
+def play_tone(frequency, duration):
+    """Play a single tone"""
+    # Generate and play tone
+    sine_wave = generate_sine_wave(frequency, duration)
+    audio.play(sine_wave)
+    time.sleep(duration)
+```
 
 ## Testing and Troubleshooting
 
 ### For 9-Year-Olds:
-1. Sensor Not Working?
-   - Check jumper wire connections
-   - Verify power rails have power
-   - Make sure sensor is in breadboard correctly
-   - Wait 30 seconds after power-up
+1. No Sound?
+   - Check JST cable connection
+   - Verify breadboard connections
+   - Try adjusting both volume controls
+   - Make sure code is loaded
 
 ### For 13-Year-Olds:
-1. Circuit Issues?
-   - Test power rail voltage
-   - Verify signal connections
-   - Check breadboard rows
-   - Debug with print statements
+1. Audio Issues?
+   - Test power connections
+   - Debug signal routing
+   - Verify audio timing
+   - Check for code errors
 
-## PIR Sensor Tips
+## Sound Programming Tips
+1. Basic Tones:
+   - Use simple frequencies first
+   - Test different durations
+   - Start with short sequences
 
-1. Understanding Connections:
-   - VCC needs reliable 3.3V power
-   - GND must be solid connection
-   - Signal (OUT) is digital (on/off)
-
-2. Sensor Behavior:
-   - Takes 30 seconds to calibrate
-   - Adjustable sensitivity
-   - Detection range is cone-shaped
-   - Works best with larger movement
+2. Advanced Sounds:
+   - Combine multiple tones
+   - Create rhythm patterns
+   - Add volume control
+   - Mix different frequencies
 
 ## Safety Notes
-- Handle sensor gently
-- Insert wires carefully
-- Keep connections secure
-- Don't touch sensor dome
+- Handle JST connector carefully
+- Keep speaker volume reasonable
+- Insert header pins straight
+- Protect speaker from damage
 
 ## Parent Notes
-- Help with breadboard setup
-- Guide sensor positioning
-- Assist with testing
-- Support troubleshooting
+- Help with JST connection
+- Guide breadboard setup
+- Monitor volume levels
+- Support sound exploration
