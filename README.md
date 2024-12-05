@@ -50,8 +50,8 @@ Specific materials for each day's project are listed in the project instructions
 | 16 | [Santa's Distance Detector](projects/day-16-distance-detector/README.md) | Build proximity sensor | Ultrasonic Distance Sensor |
 | 17 | [Weather at the North Pole](projects/day-17-north-pole-weather/README.md) | Create temperature monitor | Temperature Sensor |
 | 18 | [Dancing Snowman](projects/day-18-dancing-snowman/README.md) | Build animated decoration | Additional Servo Motors |
-| 19 | [Holiday Story Time](projects/day-19-story-time/README.md) | Create audio playback | (Uses Day 9 components) |
-| 20 | [Tree Light Show](projects/day-20-tree-show/README.md) | Create light display | Multiple colored LEDs |
+| 19 | [Frosty's Meltdown Detector](projects/day-19-story-time/README.md) | Build temperature alert system | HTS221 Temperature Sensor |
+| 20 | [Holiday Message Board](projects/day-20-holiday-message-board/README.md) | Create scrolling message display | 1.3" OLED Display (938) |
 | 21 | [Compass to the North Pole](projects/day-21-compass/README.md) | Build direction finder | Compass Module |
 | 22 | [Elf on the Shelf Alert](projects/day-22-elf-alert/README.md) | Create motion detector | Additional PIR Sensors |
 | 23 | [Light Explosion](projects/day-23-light-show/README.md) | Create ultimate light show | NeoPixel Ring |
