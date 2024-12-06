@@ -228,8 +228,11 @@ def rainbow_fade(speed=0.02):
    - Test each connection point
 
 2. Code Issues?
+   - Check pin assignments
+   - Verify color values (0-255)
+   - Test with simple colors first
+   - Print debug messages
    
-
 ## Breadboard Tips
 
 1. Understanding Connections:
