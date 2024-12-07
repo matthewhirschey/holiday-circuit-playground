@@ -114,7 +114,16 @@ def flying_pattern():
    - Debug with print statements
 
 ## Extensions
-[Same as before...]
+
+### For 9-Year-Olds:
+1. Add decorations to sleigh
+2. Try different movement speeds
+3. Create a scene around sleigh
+### For 13-Year-Olds:
+1. Add multiple movement patterns
+2. Sync with lights/sound
+3. Create interactive controls
+4. Add acceleration/deceleration
 
 ## Safety Notes
 - Insert wires carefully and straight
