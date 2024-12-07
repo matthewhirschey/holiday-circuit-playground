@@ -40,7 +40,7 @@ Specific materials for each day's project are listed in the individual project i
 | 4 | [Snowman's Magic Glow](projects/day-04-snowman-glow/README.md) | Create interactive snowman | Circuit Playground Express | 💡 |
 | 5 | [Jingle Bell](projects/day-05-jingle-bell/README.md) | Create holiday music | Piezo Buzzer | 🔊 |
 | 6 | [Glowing Hat](projects/day-06-glowing-hat/README.md) | Build illuminated hat | NeoPixel LEDs, Breadboard | 💡 |
-| 7 | [Moving Sleigh](projects/day-07-moving-sleigh/README.md) | Create animated decoration | Servo Motor | 🎮 |
+| 7 | [Waving Santa](projects/day-07-waving-santa/README.md) | Create animated decoration | Servo Motor | 🎮 |
 | 8 | [Music Box](projects/day-08-music-box/README.md) | Create musical electronics | STEMMA Speaker Add-On | 🔊 |
 | 9 | [North Pole Dial](projects/day-09-north-pole-dial/README.md) | Build rotating interface | Rotary Encoder | 🎮 |
 | 10 | [Star Light](projects/day-10-star-light/README.md) | Create light-sensitive decoration | Light Sensor | 📡 |
