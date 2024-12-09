@@ -52,7 +52,7 @@ Specific materials for each day's project are listed in the individual project i
 | 16 | [Glowing Nose](projects/day-16-glowing-nose/README.md) | Create interactive display | NeoPixel Jewel | 💡 |
 | 17 | [Compass](projects/day-17-compass/README.md) | Build direction finder | Compass Module | 📡 |
 | 18 | [Distance Detector](projects/day-18-distance-detector/README.md) | Build proximity sensor | Ultrasonic Distance Sensor | 📡 |
-| 19 | [Dancing Snowman](projects/day-19-dancing-snowman/README.md) | Build animated decoration | Additional Servo Motors | 🎮 |
+| 19 | [Dancing Snowman](projects/day-19-dancing-snowman/README.md) | Build animated decoration | Continuous Servo Motor | 🎮 |
 | 20 | [Frosty's Meltdown](projects/day-20-frosty-meltdown/README.md) | Build temperature alert system | HTS221 Temperature Sensor | 📡 |
 | 21 | [Light Show](projects/day-21-light-show/README.md) | Create ultimate light show | NeoPixel Ring | 💡 |
 | 22 | [Holiday Message Board](projects/day-22-holiday-message-board/README.md) | Create scrolling message display | 1.3" OLED Display (938) | 💡 |
