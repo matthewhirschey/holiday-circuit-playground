@@ -10,7 +10,7 @@ This repository contains a collection of 25 holiday-themed electronics projects 
 ## 🚀 Getting Started
 
 ### Required Materials
-Essential materials needed for all projects:
+Essential materials needed for all projects [(table)](resources/parts-list.md):
 - Circuit Playground Express (main board)
 - USB Cable (for programming)
 - Mini Breadboard (used from Day 6 onwards)
