@@ -1,134 +1,228 @@
-# Day 13: Weather at the North Pole
+# Day 13: North Pole Weather Station
 
-## Overview
-Today we'll create a temperature and humidity monitor using the AM2301B sensor! This pre-wired sensor will help us measure the North Pole's weather conditions. The younger group will learn about environmental sensing, while the older group will program advanced data displays.
+## Project Overview
+Create a digital weather station that monitors temperature and humidity at the "North Pole"! This project teaches environmental sensing, data collection, and visual feedback using the Circuit Playground Express and AM2301B sensor.
 
 ## Materials Needed
 - Circuit Playground Express
 - AM2301B Temperature/Humidity Sensor
 - Mini Breadboard
-- Jumper Wires
-- Optional: NeoPixel strip for display
+- 3 Jumper Wires
+- USB Cable
+- Optional: NeoPixel strip for extended display
 
-## Understanding Your Sensor
-- Look at your AM2301B sensor:
-  - Red wire (Power: 3.3V)
-  - Black wire (Ground)
-  - White wire (Data)
-  - Black case protects the sensor
-  - Small holes for mounting
+## 🔧 Hardware Setup
 
-## Instructions for Age 9
+### Understanding Your AM2301B Sensor
+- **Wire Colors and Functions:**
+  - Red wire → Power (3.3V)
+  - Black wire → Ground (GND)
+  - White wire → Data (Signal)
+- The black case contains the sensitive components
+- Small mounting holes for permanent installation
 
-1. Breadboard Setup:
-   - Power rails (like previous days):
-     - Red jumper wire from 3.3V to + rail
-     - Black jumper wire from GND to - rail
+### Basic Connection Steps
+1. **Prepare Your Breadboard:**
+   - Connect red jumper from CPX 3.3V to breadboard's + rail
+   - Connect black jumper from CPX GND to breadboard's - rail
 
-2. Connect Sensor:
-   - Place wires in breadboard:
-     - Red wire to + rail (3.3V)
-     - Black wire to - rail (GND)
-     - White wire in empty row
-   - Connect white wire row to A1 with jumper
+2. **Connect the AM2301B:**
+   - Red wire → Breadboard's + rail
+   - Black wire → Breadboard's - rail
+   - White wire → Empty row on breadboard
+   - Connect jumper from white wire's row to CPX pin A1
 
-3. Test Your Sensor:
-   - Watch temperature change:
-     - Cup hands around sensor - warmer!
-     - Blow on sensor - cooler!
-   - LEDs show temperature:
-     - Blue = cold
-     - Green = comfortable
-     - Red = warm
+## 💻 Software Setup
 
-## Instructions for Age 13
+### For Age 9 (Using MakeCode)
+1. **Initial Setup:**
+   - Open [MakeCode for Circuit Playground Express](https://makecode.adafruit.com/)
+   - Click "New Project"
+   - Name it "NorthPoleWeather"
 
-1. Advanced Setup:
-   - Follow basic connection steps
-   - Consider sensor placement
-   - Plan data display method
+2. **Basic Program Structure:**
+   ```blocks
+   // On start block
+   let temperature = 0
+   let strip = neopixel.create(DigitalPin.A1, 10, NeoPixelMode.RGB)
+   
+   // Forever block
+   forever(function() {
+       temperature = input.temperature()
+       
+       // Update all pixels based on temperature
+       if (temperature < 18) {
+           strip.showColor(neopixel.colors(NeoPixelColors.Blue))
+       } else if (temperature < 25) {
+           strip.showColor(neopixel.colors(NeoPixelColors.Green))
+       } else {
+           strip.showColor(neopixel.colors(NeoPixelColors.Red))
+       }
+       
+       // Show the temperature on screen
+       basic.showNumber(temperature)
+       pause(1000)
+   })
+   ```
 
-2. Basic Sensor Code:
+3. **Testing Your Code:**
+   - Click "Download"
+   - Copy the file to your Circuit Playground Express
+   - The board's LEDs should change color based on temperature
+
+### For Age 13 (Using CircuitPython)
+1. **Setup CircuitPython:**
+   - Install CircuitPython 8.x on your Circuit Playground Express
+   - Install required libraries:
+     - adafruit_ahtx0.mpy
+     - neopixel.mpy
+
+2. **Create code.py:**
 ```python
 import time
 import board
+import neopixel
 import adafruit_ahtx0
 
-# Create the AHT20 sensor object
+# Setup NeoPixels
+pixels = neopixel.NeoPixel(board.NEOPIXEL, 10, brightness=0.3)
+
+# Setup the temperature sensor
 i2c = board.I2C()
 sensor = adafruit_ahtx0.AHTx0(i2c)
 
-# Main loop
-while True:
-    temp = sensor.temperature
-    humidity = sensor.relative_humidity
-    print(f"Temp: {temp:.1f} °C")
-    print(f"Humidity: {humidity:.1f} %")
-    time.sleep(1)
-```
-
-3. Temperature Display:
-```python
 def temp_to_color(temp):
-    """Convert temperature to color"""
+    """Convert temperature to RGB color."""
     if temp < 18:  # Cold
         return (0, 0, 255)  # Blue
     elif temp < 25:  # Comfortable
         return (0, 255, 0)  # Green
     else:  # Warm
         return (255, 0, 0)  # Red
+
+def show_temp_animation(temp):
+    """Display temperature with animation."""
+    color = temp_to_color(temp)
+    # Fill pixels one by one
+    for i in range(10):
+        pixels[i] = color
+        time.sleep(0.1)
+
+while True:
+    try:
+        # Read sensor data
+        temperature = sensor.temperature
+        humidity = relative_humidity = sensor.relative_humidity
+        
+        # Display temperature with animation
+        show_temp_animation(temperature)
+        
+        # Print data to serial console
+        print(f"Temperature: {temperature:.1f}°C")
+        print(f"Humidity: {humidity:.1f}%")
+        print("-" * 30)
+        
+        time.sleep(2)  # Wait before next reading
+        
+    except Exception as e:
+        print(f"Error reading sensor: {e}")
+        time.sleep(1)
 ```
 
-## Testing and Troubleshooting
+## 🔍 Troubleshooting Guide
 
-### For 9-Year-Olds:
-1. No Readings?
-   - Check wire connections
-   - Verify power (3.3V)
-   - Reset Circuit Playground
-   - Wait for sensor startup
+### Common Issues and Solutions
 
-### For 13-Year-Olds:
-1. Data Issues?
-   - Check I2C address
-   - Verify library import
-   - Test sensor placement
-   - Debug readings
+1. **No Sensor Readings:**
+   - Verify all wire connections
+   - Check power (3.3V) connection
+   - Ensure correct pin assignments
+   - Try resetting the Circuit Playground
+   - Wait 2-3 seconds after power-up
 
-## Sensor Tips
+2. **Incorrect Readings:**
+   - Allow sensor to stabilize (30 seconds)
+   - Keep away from direct heat/cold sources
+   - Ensure proper ventilation
+   - Check for loose connections
 
-1. Best Practices:
-   - Keep sensor clean
-   - Avoid direct heat/cold
-   - Allow air circulation
-   - Give time to stabilize
+3. **Code Not Working:**
+   - Verify correct library installation
+   - Check for syntax errors
+   - Ensure proper pin assignments
+   - Reset the board and try again
 
-2. Reading Quality:
-   - More accurate when stable
-   - Takes time to adjust
-   - Humidity affects temperature
+## 🚀 Extension Activities
 
-## Extension Ideas
+### For Age 9
+1. **Color Patterns:**
+   - Add blinking for extreme temperatures
+   - Create rainbow effects for different ranges
+   - Use brightness to show humidity
 
-### For 9-Year-Olds:
-1. Add color patterns
-2. Track temperature changes
-3. Make weather alerts
+2. **Weather Reporter:**
+   - Add button controls to switch displays
+   - Create simple weather alerts
+   - Make temperature prediction game
 
-### For 13-Year-Olds:
-1. Log data over time
-2. Create graphs
-3. Add condition alerts
-4. Make weather predictions
+### For Age 13
+1. **Data Logger:**
+```python
+# Add to your main code
+import json
 
-## Safety Notes
-- Don't get sensor wet
-- Handle wires carefully
-- Keep connections secure
-- Mind the sensor case
+def log_weather_data(temp, humidity):
+    """Log weather data to a file."""
+    data = {
+        "timestamp": time.monotonic(),
+        "temperature": temp,
+        "humidity": humidity
+    }
+    
+    try:
+        with open("/weather_log.txt", "a") as f:
+            f.write(json.dumps(data) + "\n")
+    except Exception as e:
+        print(f"Logging error: {e}")
+```
 
-## Parent Notes
-- Help with wire identification
-- Guide sensor placement
-- Assist with testing
-- Support data analysis
+2. **Advanced Features:**
+   - Create moving averages
+   - Add trend detection
+   - Implement weather predictions
+   - Design custom animations
+
+## ⚠️ Safety Guidelines
+1. **Hardware Safety:**
+   - Never exceed 3.3V power
+   - Keep sensor dry
+   - Handle connections carefully
+   - Avoid static electricity
+
+2. **Usage Safety:**
+   - Adult supervision required
+   - Keep small parts away from young children
+   - Use proper voltage levels
+   - Maintain proper ventilation
+
+## 📝 Learning Objectives
+### Age 9:
+- Understanding temperature measurement
+- Basic environmental monitoring
+- Simple programming concepts
+- Color and temperature relationships
+
+### Age 13:
+- Advanced sensor integration
+- Data collection and analysis
+- Error handling
+- Complex programming concepts
+
+## 🏆 Success Criteria
+- Sensor correctly reads temperature
+- LEDs change color based on readings
+- Data displays properly
+- System responds to temperature changes
+- Optional: Logging works correctly
+
+Need help? Check our [Troubleshooting Guide](docs/troubleshooting.md) or open an issue in the repository!
