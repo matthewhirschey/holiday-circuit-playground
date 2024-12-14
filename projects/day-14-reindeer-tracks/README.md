@@ -13,6 +13,7 @@ Today we'll build a motion detector that lights up when it senses movement - per
 
 ## Instructions for Age 9
 
+### Hardware Setup
 1. Understand Your PIR Sensor:
    - Look at the sensor dome on top
    - Find the three pins on bottom:
@@ -41,7 +42,23 @@ Today we'll build a motion detector that lights up when it senses movement - per
    - Connect signal:
      - Data wire to A2
 
-5. Test Your Detector:
+### Programming with MakeCode
+1. Open MakeCode for Circuit Playground Express
+
+2. Create Basic Motion Detection:
+   - From INPUT menu, drag `on motion detected` block
+   - From LIGHT menu, add `show ring` block inside
+   - Choose red color for all pixels
+   - From INPUT menu, drag `on no motion` block
+   - Add `clear` block from LIGHT menu inside
+
+3. Upload and Test:
+   - Click "Download"
+   - Copy file to CPLAYBOOT drive
+   - Wave hand in front of sensor
+   - Watch lights respond
+
+4. Expected Behavior:
    - When motion is detected:
      - Built-in LED on sensor lights
      - NeoPixel Jewel shows pattern
@@ -50,15 +67,54 @@ Today we'll build a motion detector that lights up when it senses movement - per
 
 ## Instructions for Age 13
 
-1. Hardware Setup:
-   - Follow basic connection steps
-   - Consider sensor placement
-   - Use colored jumpers to stay organized:
-     - Red for power (VCC)
-     - Black for ground (GND)
-     - Different color for signals
+### Hardware Setup
+1. Follow basic connection steps from Age 9 instructions
+2. Consider optimal sensor placement
+3. Use colored jumpers to stay organized:
+   - Red for power (VCC)
+   - Black for ground (GND)
+   - Different color for signals
 
-2. Basic Motion Code:
+### Programming Options
+
+#### Option 1: MakeCode (JavaScript)
+```typescript
+// Variables for tracking
+let motionCount = 0
+let lastMotionTime = 0
+
+// On motion detected
+input.onMotionDetected(() => {
+    motionCount += 1
+    lastMotionTime = input.runningTime()
+    
+    // Create spinning red alert pattern
+    let position = 0
+    light.clear()
+    forever(() => {
+        if (!input.motion()) {
+            light.clear()
+            return
+        }
+        light.setPixelColor(position, light.rgb(255, 0, 0))
+        light.setPixelColor((position + 5) % 10, light.rgb(255, 0, 0))
+        light.setPixelColor((position + 1) % 10, light.rgb(0, 0, 0))
+        light.setPixelColor((position + 6) % 10, light.rgb(0, 0, 0))
+        position = (position + 1) % 10
+        pause(100)
+    })
+})
+
+// On no motion
+input.onNoMotion(() => {
+    light.clear()
+    // Display motion stats on screen
+    console.log(`Motions detected: ${motionCount}`)
+    console.log(`Last motion: ${Math.round((input.runningTime() - lastMotionTime)/1000)}s ago`)
+})
+```
+
+#### Option 2: CircuitPython
 ```python
 import time
 import board
@@ -82,24 +138,47 @@ while True:
     time.sleep(0.1)
 ```
 
+### Code Features
+1. MakeCode Version:
+   - Tracks motion count and timing
+   - Creates spinning light pattern
+   - Clears display when motion stops
+   - Logs statistics to console
+
+2. CircuitPython Version:
+   - Basic motion detection
+   - Simple on/off light control
+   - Serial output for debugging
+
+### Extension Activities
+- Add sound effects using MUSIC blocks
+- Create different patterns for different times
+- Add temperature monitoring
+- Display data on OLED screen
+
 ## Testing and Troubleshooting
 
-### For 9-Year-Olds:
+### For 9-Year-Olds
 1. Sensor Not Working?
    - Check jumper wire connections
    - Verify power rails have power
    - Make sure sensor is in breadboard correctly
    - Wait 30 seconds after power-up
 
-### For 13-Year-Olds:
-1. Circuit Issues?
+### For 13-Year-Olds
+1. Circuit Issues:
    - Test power rail voltage
    - Verify signal connections
    - Check breadboard rows
    - Debug with print statements
 
-## PIR Sensor Tips
+2. Code Issues:
+   - Use simulator to test code
+   - Add console.log statements
+   - Check variable values
+   - Test one feature at a time
 
+## PIR Sensor Tips
 1. Understanding Connections:
    - VCC needs reliable 3.3V power
    - GND must be solid connection
@@ -122,3 +201,5 @@ while True:
 - Guide sensor positioning
 - Assist with testing
 - Support troubleshooting
+- Monitor MakeCode upload process
+- Help debug connection issues
