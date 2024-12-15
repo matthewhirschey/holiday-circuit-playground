@@ -1,13 +1,15 @@
 # Day 13: North Pole Weather Station
 
 ## Project Overview
-Create a digital weather station that monitors temperature and humidity at the "North Pole"! This project teaches environmental sensing, data collection, and visual feedback using the Circuit Playground Express and AM2301B sensor.
+Build your own digital North Pole weather station that lights up different colors to show how cold (or warm) it is! Your weather station will use real temperature and humidity sensors to monitor the "North Pole" conditions, just like Santa's elves might use. When it's super cold, your lights will glow blue; when it's warming up, they'll turn green; and if it gets too warm for the North Pole, they'll flash red to warn Santa that his ice is melting! You can even track the humidity to make sure there's enough moisture in the air for making perfect snowballs.
+
+For our 13-year-old builders: You'll also learn to save all your weather data to create graphs and track temperature changes over time - perfect for predicting when conditions are right for Santa's takeoff!
 
 ## Materials Needed
 - Circuit Playground Express
 - AM2301B Temperature/Humidity Sensor
 - Mini Breadboard
-- 3 Jumper Wires
+- 4 Jumper Wires
 - USB Cable
 - Optional: NeoPixel strip for extended display
 
@@ -17,7 +19,8 @@ Create a digital weather station that monitors temperature and humidity at the "
 - **Wire Colors and Functions:**
   - Red wire → Power (3.3V)
   - Black wire → Ground (GND)
-  - White wire → Data (Signal)
+  - Yellow wire → Clock (SCL)
+  - White wire → Data (SDA)
 - The black case contains the sensitive components
 - Small mounting holes for permanent installation
 
@@ -29,8 +32,8 @@ Create a digital weather station that monitors temperature and humidity at the "
 2. **Connect the AM2301B:**
    - Red wire → Breadboard's + rail
    - Black wire → Breadboard's - rail
-   - White wire → Empty row on breadboard
-   - Connect jumper from white wire's row to CPX pin A1
+   - Yellow wire → Connect to CPX SCL (use A2 pin)
+   - White wire → Connect to CPX SDA (use A1 pin)
 
 ## 💻 Software Setup
 
