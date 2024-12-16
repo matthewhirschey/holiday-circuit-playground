@@ -76,89 +76,129 @@ Before we start building, let's understand how our mechanical knob works:
 ## Instructions for Age 13
 
 ### 1. Advanced Hardware Setup
-```python
+"""
+North Pole Dial - Day 9 Project
+For Circuit Playground Express with PEC11 Rotary Encoder
+
+Connections:
+- Channel A (left pin of 3) -> A1
+- Common (middle pin) -> GND
+- Channel B (right pin) -> A2
+- Switch (either pin) -> A3
+- Switch (other pin) -> GND
+"""
+```
 import time
 import board
 import digitalio
 from adafruit_circuitplayground import cp
 
-# Encoder Setup
 class RotaryEncoder:
     def __init__(self, clk_pin, dt_pin, sw_pin):
-        # Initialize pins
-        self.clk = digitalio.DigitalInOut(clk_pin)
-        self.dt = digitalio.DigitalInOut(dt_pin)
-        self.sw = digitalio.DigitalInOut(sw_pin)
+        # Set up encoder pins
+        self.clk = digitalio.DigitalInOut(clk_pin)  # Channel A
+        self.dt = digitalio.DigitalInOut(dt_pin)    # Channel B
+        self.sw = digitalio.DigitalInOut(sw_pin)    # Push Button
         
-        # Set pin directions
+        # Configure all pins as inputs
         self.clk.direction = digitalio.Direction.INPUT
         self.dt.direction = digitalio.Direction.INPUT
         self.sw.direction = digitalio.Direction.INPUT
         
-        # Enable pullup on button
+        # Enable pull-up resistor on button
+        # This makes the button read False when pressed
         self.sw.pull = digitalio.Pull.UP
         
-        # State tracking
+        # Remember last state for rotation detection
         self.last_clk = self.clk.value
-        self.position = 0
-        self.last_button = time.monotonic()
+        self.last_button_time = time.monotonic()  # For debouncing
+    
+    def read_encoder(self):
+        """
+        Read encoder rotation. Returns:
+         1 for clockwise
+        -1 for counter-clockwise
+         0 for no movement
+        """
+        # No change since last read
+        if self.clk.value == self.last_clk:
+            return 0
+            
+        # Save the new state
+        self.last_clk = self.clk.value
         
-    def update(self):
-        """Read encoder and return position change"""
-        position_change = 0
-        
-        # Check rotation
-        current_clk = self.clk.value
-        if current_clk != self.last_clk:
-            if self.dt.value != current_clk:
-                position_change = 1
-            else:
-                position_change = -1
-        self.last_clk = current_clk
-        
-        return position_change
+        # Check rotation direction
+        if self.dt.value != self.clk.value:
+            return 1  # Clockwise
+        else:
+            return -1  # Counter-clockwise
     
     def button_pressed(self):
-        """Check if button is pressed with debounce"""
-        if not self.sw.value:
+        """Check if button is pressed, with debouncing"""
+        if not self.sw.value:  # Button is pressed (reads False when pressed)
             current_time = time.monotonic()
-            if current_time - self.last_button > 0.2:
-                self.last_button = current_time
+            # Check if enough time has passed since last press
+            if current_time - self.last_button_time > 0.2:
+                self.last_button_time = current_time
                 return True
         return False
 
-# Create encoder instance
+# Set up the NeoPixels
+cp.pixels.brightness = 0.3
+cp.pixels.fill((0, 0, 0))
+
+# Create our encoder
 encoder = RotaryEncoder(
-    clk_pin=board.A1,
-    dt_pin=board.A2,
-    sw_pin=board.A3
+    clk_pin=board.A1,  # Channel A
+    dt_pin=board.A2,   # Channel B
+    sw_pin=board.A3    # Push Button
 )
 
-# Main control loop
-mode = 0  # 0 = color, 1 = brightness
-color_index = 0
-brightness = 0.3
+# Variables for tracking state
+mode = 0        # 0 = color mode, 1 = brightness mode
+color_hue = 0   # 0-255 for color wheel position
+brightness = 0.3  # 0.0-1.0 for LED brightness
 
-while True:
-    # Update encoder position
-    change = encoder.update()
+def wheel(pos):
+    """
+    Color wheel for making rainbow colors.
+    Input: 0-255 position on wheel
+    Output: (r, g, b) tuple
+    """
+    pos = pos % 255  # Keep position in valid range
     
-    # Handle rotation
-    if change != 0:
-        if mode == 0:
-            # Color mode
-            color_index = (color_index + change) % 256
-            cp.pixels.fill((color_index, 255 - color_index, 128))
-        else:
-            # Brightness mode
+    if pos < 85:  # Red to Green
+        return (255 - pos * 3, pos * 3, 0)
+    elif pos < 170:  # Green to Blue
+        pos -= 85
+        return (0, 255 - pos * 3, pos * 3)
+    else:  # Blue to Red
+        pos -= 170
+        return (pos * 3, 0, 255 - pos * 3)
+
+# Main loop
+while True:
+    # Check for rotation
+    change = encoder.read_encoder()
+    
+    if change != 0:  # If encoder was turned
+        if mode == 0:  # Color mode
+            # Update color (0-255)
+            color_hue = (color_hue + change * 5) % 256
+            # Set all pixels to new color
+            cp.pixels.fill(wheel(color_hue))
+        else:  # Brightness mode
+            # Update brightness (0.1-1.0)
             brightness = max(0.1, min(1.0, brightness + change * 0.05))
             cp.pixels.brightness = brightness
     
-    # Handle button press
+    # Check for button press
     if encoder.button_pressed():
-        mode = (mode + 1) % 2
+        mode = (mode + 1) % 2  # Toggle between modes
+        # Flash pixels off briefly to show mode change
         cp.pixels.fill((0, 0, 0))
         time.sleep(0.1)
+        cp.pixels.fill(wheel(color_hue))
     
     # Small delay to prevent overwhelming the board
     time.sleep(0.01)
