@@ -1,7 +1,6 @@
-# Day 16: Rudolph's Glowing Nose
-
+# Day 16: Rudolph's Musical Glowing Nose 🦌
 ## Overview
-Today we'll create Rudolph's famous glowing nose using a NeoPixel Jewel! We'll learn two different ways to connect our NeoPixel: a simple way with alligator clips for younger makers, and a more advanced breadboard method for older makers.
+Today we'll create Rudolph's famous glowing nose with holiday sounds! Our nose will light up and play festive tunes, teaching us about combining light and sound in electronics projects.
 
 ## Materials Needed
 - Circuit Playground Express
@@ -12,137 +11,232 @@ Today we'll create Rudolph's famous glowing nose using a NeoPixel Jewel! We'll l
 - Cardboard/craft materials for Rudolph's face
 - Decorating supplies
 
-## Instructions for Age 9 (Alligator Clip Method)
+## Instructions for Age 9 (MakeCode Version)
 
-1. Look at Your NeoPixel Jewel:
-   - Find the three connection pads:
-     - Power pad (marked +, 3-5V)
-     - Ground pad (marked -, GND)
-     - Data In pad (marked IN or DI)
-   - Notice how shiny and large they are for clips
+### Setup
+Follow the same connection instructions for the NeoPixel Jewel using alligator clips.
 
-2. Connect Your Clips:
-   - Red clip: Power pad to Circuit Playground 3.3V
-   - Black clip: Ground pad to Circuit Playground GND
-   - Colored clip: Data pad to Circuit Playground A1
+### Programming with MakeCode
+1. Go to makecode.adafruit.com
+2. Start a new project
+3. Follow these block sections:
 
-3. Create Rudolph's Face:
-   - Draw or cut out face shape
-   - Make a hole for the NeoPixel Jewel nose
-   - Add eyes, antlers, etc.
+### Basic Setup
+- From LIGHT, drag `set all pixels brightness` to `on start`
+- Set brightness to 50
+- Add `set all pixels to` and choose red
 
-4. Test Your Nose:
-   - Press A for steady glow
-   - Press B for twinkling effect
-   - Both buttons for special pattern!
+### Button A - Jingle Nose
+In a `forever` loop, add:
+1. `if` button A is pressed
+2. Inside the if block:
+   - `set pixel color` to bright red
+   - Add `play melody` from MUSIC
+   - Choose built-in "JingleBells" melody
+   - Add `show animation` from LIGHT
+   - Choose "sparkle" animation
 
-## Instructions for Age 13 (Breadboard Method)
+### Button B - Twinkling Star
+Create another `if` block:
+1. Add `if` button B is pressed
+2. Inside add these blocks:
+   - `repeat 4 times` loop
+   - Inside loop:
+     - `set pixel brightness` to 100
+     - `play tone Middle C`
+     - `pause 200 ms`
+     - `set pixel brightness` to 20
+     - `pause 200 ms`
 
-1. Breadboard Setup:
-   - Power rails (like previous days):
-     - Red jumper from 3.3V to + rail
-     - Black jumper from GND to - rail
+### Light Sensor Response
+In a separate `forever` loop:
+1. Add `set brightness`
+2. From MATH, add `map value`
+3. Insert `light level` into map
+4. Map from 0 to 255
+5. Map to 20 to 100 (for brightness)
 
-2. Mount NeoPixel Jewel:
-   - Place jewel near breadboard edge
-   - Connect to breadboard using jumper wires:
-     - Power pad to + rail
-     - Ground pad to - rail
-     - Data pad to empty row
+Here's the complete code broken down into sections:
 
-3. Complete Circuit:
-   - Connect Data row to A1 with jumper wire
-   - Double-check all connections
-   - Consider wire organization
+```blocks
+// On Start
+light.setBrightness(50)
+light.setAll(0xff0000)
 
-4. Programming Example:
+// Main Control Loop
+forever(function () {
+    // Button A - Jingle Nose
+    if (input.buttonA.isPressed()) {
+        light.setAll(0xff0000)
+        music.playMelody("E B C5 A B G A F ", 120)
+        light.showAnimation(light.sparkleAnimation, 2000)
+    } 
+    // Button B - Twinkling Star
+    else if (input.buttonB.isPressed()) {
+        for (let i = 0; i < 4; i++) {
+            light.setBrightness(100)
+            music.playTone(262, music.beat(BeatFraction.Quarter))
+            pause(200)
+            light.setBrightness(20)
+            pause(200)
+        }
+    }
+    // Shake Detection
+    else if (input.isGesture(Gesture.Shake)) {
+        music.playMelody("C E G C5 - - - -", 120)
+        light.showAnimation(light.rainbowAnimation, 2000)
+    }
+})
+
+// Light Level Response
+forever(function () {
+    let brightness = Math.map(input.lightLevel(), 0, 255, 20, 100)
+    light.setBrightness(brightness)
+    pause(100)
+})
+```
+
+## Instructions for Age 13 (CircuitPython Version)
+
+### Setup
+Follow the same breadboard setup instructions as before.
+
+### Programming Example
+
 ```python
 import board
 import neopixel
+import time
+import random
 from adafruit_circuitplayground import cp
 
 # Set up NeoPixel Jewel
 jewel = neopixel.NeoPixel(board.A1, 7, brightness=0.3)
 
-# Define colors
+# Define colors and musical notes
 RED = (255, 0, 0)
 BRIGHT_RED = (255, 50, 50)
+WARM_RED = (255, 30, 0)
+DIM_RED = (64, 0, 0)
+
+JINGLE_BELLS = [
+    (392, 0.25),  # G
+    (494, 0.25),  # B
+    (523, 0.25),  # C
+]
+
+def play_jingle():
+    """Play a short holiday tune"""
+    for note, duration in JINGLE_BELLS:
+        cp.start_tone(note)
+        time.sleep(duration)
+        cp.stop_tone()
+        time.sleep(0.05)
+
+def breathing_effect():
+    """Creates a smooth breathing effect with sound"""
+    for i in range(0, 100, 2):
+        brightness = i / 100
+        jewel.fill((int(255 * brightness), 0, 0))
+        if i % 20 == 0:
+            cp.start_tone(random.choice([392, 494, 523]))
+        time.sleep(0.02)
+        cp.stop_tone()
+    for i in range(100, 0, -2):
+        brightness = i / 100
+        jewel.fill((int(255 * brightness), 0, 0))
+        time.sleep(0.02)
 
 # Main loop
 while True:
+    # Read light level for automatic brightness adjustment
+    light_level = cp.light
+    auto_brightness = max(0.1, min(1.0, light_level / 300))
+    jewel.brightness = auto_brightness
+    
     if cp.button_a:
         jewel.fill(RED)
+        play_jingle()
     elif cp.button_b:
-        # Twinkle effect
-        jewel.fill(BRIGHT_RED)
-        time.sleep(0.5)
+        breathing_effect()
+    elif cp.shake(shake_threshold=20):
+        # Special light and sound show
+        for _ in range(3):
+            jewel.fill(BRIGHT_RED)
+            cp.start_tone(523)  # C note
+            time.sleep(0.2)
+            jewel.fill(DIM_RED)
+            cp.stop_tone()
+            time.sleep(0.2)
+    else:
         jewel.fill(RED)
-        time.sleep(0.5)
 ```
 
-## Comparing Connection Methods
-
-### Alligator Clips
-Pros:
-- Quick to connect
-- Easy to see connections
-- Good for testing
-- Simple to adjust
-
-Cons:
-- Can come loose
-- Bulkier setup
-- Clips might touch
-
-### Breadboard
-Pros:
-- More secure connections
-- Cleaner appearance
-- Better for permanent projects
-- Professional approach
-
-Cons:
-- Takes more time to set up
-- Needs more materials
-- Less visible connections
-
-## Testing and Troubleshooting
-
-### For 9-Year-Olds (Clips):
-1. Lights Not Working?
-   - Check clip connections
-   - Make sure clips don't touch
-   - Verify clip placement
-   - Try adjusting clips
-
-### For 13-Year-Olds (Breadboard):
-1. Connection Issues?
-   - Check wire placement
-   - Verify power connections
-   - Test data signal
-   - Review wire routing
+## New Features Added
+- Light sensor integration for automatic brightness adjustment
+- Musical feedback for button presses
+- Shake detection for special effects
+- Breathing light pattern synchronized with sound
+- Interactive sound toggle
+- Smooth transitions between effects
 
 ## Extensions
-
 ### For 9-Year-Olds:
-1. Add different colors
-2. Create blinking patterns
-3. Make nose respond to buttons
+1. Change the melody:
+   - Click the melody notes to create your own tune
+   - Adjust the tempo (120 is default)
+
+2. Add shake detection:
+   - Use `on shake` block
+   - Add rainbow animation
+   - Play ascending notes
+
+3. Create light patterns:
+   - Try different animations (rainbow, sparkle, theater chase)
+   - Change colors in sequence
+   - Make patterns match the music
+
+4. Experiment with sensors:
+   - Use temperature readings
+   - Add sound detection
+   - Try different light levels
 
 ### For 13-Year-Olds:
-1. Add motion responses
-2. Create complex animations
-3. Sync with sounds
-4. Add light sensors
+1. Add custom melodies
+2. Create complex light animations
+3. Implement temperature-based effects
+4. Add sound responsive patterns
+
+## Troubleshooting
+- If lights aren't changing: Check your brightness settings
+- If music isn't playing: Make sure volume is up
+- If animations freeze: Try pressing the reset button
+- Light sensor not working: Test in different lighting conditions
+
+## Additional Tips
+1. Start with testing each part separately:
+   - Test lights first
+   - Add sounds
+   - Then combine them
+
+2. Save your work often:
+   - Download your code
+   - Keep different versions
+
+3. Experiment with timing:
+   - Adjust pause lengths
+   - Change animation speeds
+   - Sync music with lights
 
 ## Safety Notes
-- Handle connections carefully
-- Keep metal parts separated
-- Don't pull on wires/clips
-- Mind the eye safety with bright LEDs
+Same as before, plus:
+- Keep volume at reasonable levels
+- Take breaks from bright light patterns
+- Test sound levels before wearing near ears
 
 ## Parent Notes
 - Help with initial setup
-- Guide connection choices
+- Guide sound level adjustment
 - Assist with testing
-- Support exploration
+- Support creative modifications
+- Monitor battery usage
