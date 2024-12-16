@@ -8,7 +8,7 @@ Transform your Circuit Playground Express into an interactive control station us
 **Project Type**: 🎮 Interactive Control
 
 ## What You'll Learn
-- How rotary encoders work as digital inputs
+- How mechanical rotary encoders work
 - Reading and processing multiple input signals
 - Creating interactive control interfaces
 - Basic state management in code
@@ -16,49 +16,56 @@ Transform your Circuit Playground Express into an interactive control station us
 
 ## Required Materials
 - Circuit Playground Express
-- Rotary Encoder (PID: 377)
+- PEC11 Rotary Encoder (Adafruit PID: 377)
 - Mini Breadboard
-- 5x Jumper Wires (male-to-male)
+- 4x Jumper Wires (male-to-male)
 - USB Cable for programming
 
 ## Hardware Overview
-A rotary encoder is like a digital knob that can turn endlessly in either direction. Unlike a potentiometer, it doesn't have stops and can track relative movement. The encoder we're using includes:
+A rotary encoder is a mechanical device that creates digital signals by making and breaking connections as you turn it. The PEC11 encoder has:
 
-- CLK (Clock/Pin A): Sends pulses as you turn
-- DT (Data/Pin B): Helps determine rotation direction
-- SW: Built-in pushbutton
-- VCC: Power input (3.3V)
-- GND: Ground connection
+- Channel A: Left pin on 3-pin side, connects to ground in a pattern as you turn
+- Common (Ground): Middle pin on 3-pin side
+- Channel B: Right pin on 3-pin side, connects to ground in a pattern as you turn
+- Switch: 2 pins on opposite side that connect when pressed
+
+Key differences from other rotary devices:
+- No power needed - it's purely mechanical
+- Can turn continuously without stops
+- Makes clicking sounds as you turn
+- Includes a pushbutton that clicks when pressed
 
 ## Safety First! ⚡
 - Always disconnect power before making connections
 - Handle the encoder gently - the pins can bend
-- Use static protection when handling components
-- Maximum voltage: 3.3V (DO NOT use 5V with Circuit Playground Express)
 - Keep workspace clean and organized
-- Adult supervision required for soldering (if needed)
+- Double-check ground connections
+- Adult supervision recommended for initial setup
 
 ## Instructions for Age 9
 
 ### 1. Understanding Your Encoder
-Before we start building, let's understand how our digital knob works:
-- Turning right makes "clicking" sounds - we'll use these for increasing values
+Before we start building, let's understand how our mechanical knob works:
+- The encoder has pins on two sides (3 pins and 2 pins)
+- Turning right makes clicking sounds - we'll use these for increasing values
 - Turning left also clicks - we'll use these for decreasing values
 - The button on top can be pressed to change modes
-- Inside are special sensors that tell us which way you're turning
+- Inside are tiny switches that connect and disconnect as you turn
 
 ### 2. Building the Circuit
-1. Power Setup
-   - Connect red jumper wire from 3.3V to breadboard's red (+) rail
-   - Connect black jumper wire from GND to breadboard's blue (-) rail
+1. Ground Setup
+   - Connect a black jumper wire from Circuit Playground GND to breadboard's blue (-) rail
+   - This provides ground for both the turning and button functions
 
 2. Encoder Connection
    - Place encoder in breadboard, straddling the center gap
-   - Connect GND pin to blue (-) rail
-   - Connect VCC pin to red (+) rail
-   - Connect CLK to Circuit Playground A1
-   - Connect DT to Circuit Playground A2
-   - Connect SW to Circuit Playground A3
+   - On the 3-pin side (left to right):
+     * Connect left pin (Channel A) to Circuit Playground A1
+     * Connect middle pin (Ground) to blue (-) rail
+     * Connect right pin (Channel B) to Circuit Playground A2
+   - On the 2-pin side:
+     * Connect one switch pin to Circuit Playground A3
+     * Connect other switch pin to blue (-) rail
 
 ### 3. Basic Operation
 - Turn right = Next color
@@ -157,23 +164,36 @@ while True:
     time.sleep(0.01)
 ```
 
+
 ## Troubleshooting Guide
 
 ### Common Issues
 1. Encoder not responding
-   - Check all wire connections
-   - Verify 3.3V power connection
+   - Check ground connections
+   - Verify both middle pin and switch are grounded
    - Ensure proper pin assignments in code
    
 2. Erratic behavior
    - Add or increase debounce delay
    - Check for loose connections
-   - Verify ground connection
+   - Make sure each pin is in its own breadboard row
 
 3. NeoPixels not updating
-   - Check NeoPixel power connection
-   - Verify pixel count in code
+   - Check code is properly uploaded
+   - Verify pixel settings in code
    - Reset Circuit Playground Express
+
+## Circuit Diagram
+```
+Circuit Playground Express    Rotary Encoder (3-pin side)
+A1 --------------------- Channel A (left pin)
+GND -------------------- Common (middle pin)
+A2 --------------------- Channel B (right pin)
+
+Circuit Playground Express    Rotary Encoder (2-pin side)
+A3 --------------------- Switch Pin 1
+GND -------------------- Switch Pin 2
+```
 
 ## Extension Activities
 1. Add different control modes:
@@ -185,16 +205,6 @@ while True:
    - Simon Says with encoder movements
    - Reaction timer
    - Pattern matching challenge
-
-## Circuit Diagram
-```
-Circuit Playground Express    Rotary Encoder
-3.3V -------------------- VCC
-GND --------------------- GND
-A1 --------------------- CLK
-A2 --------------------- DT
-A3 --------------------- SW
-```
 
 ## Additional Resources
 - [Circuit Playground Express Pinout Guide](https://learn.adafruit.com/adafruit-circuit-playground-express/pinouts)
