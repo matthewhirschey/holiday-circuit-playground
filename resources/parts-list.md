@@ -18,6 +18,7 @@
 | Temperature Sensor | Temperature Sensor (Analog) | [381](https://www.adafruit.com/product/381) |
 | Touch Sensor | Capacitive Touch Sensor Breakout | [1362](https://www.adafruit.com/product/1362) |
 | Switch | Slide Switch | [805](https://www.adafruit.com/product/805) |
+| Distance Sensor | US-100 Ultrasonic Distance Sensor | [4019](https://www.adafruit.com/product/4019) |
 | Light Dependent Resistor | Photoresistor | [161](https://www.adafruit.com/product/161) |
 | Break Beam Sensor | IR Break Beam Sensor | [2168](https://www.adafruit.com/product/2168) |
 | Potentiometer | Potentiometer (10k Ohm) | [178](https://www.adafruit.com/product/178) |
