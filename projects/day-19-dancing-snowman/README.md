@@ -1,7 +1,7 @@
 # Day 19: Dancing Snowman with Continuous Rotation
 
 ## Overview
-Today we'll create a dancing snowman using a continuous rotation servo motor! Unlike our previous servo project from Day 7 that used position control, we'll use a special servo that can spin all the way around. This will let us create fun spinning movements for our snowman's arm or body. The younger group will work with basic rotations and speeds, while the older group will program complex movement patterns and interactive controls.
+Today we'll create a dancing snowman using a continuous rotation servo motor! Unlike our previous servo project from Day 7 that used position control, we'll use a special servo that can spin all the way around. This will let us create fun spinning movements for our snowman's arm or body. The younger group will use MakeCode blocks for basic rotations and speeds, while the older group will program complex movement patterns and interactive controls using CircuitPython.
 
 ## Materials Needed
 - Circuit Playground Express
@@ -9,7 +9,8 @@ Today we'll create a dancing snowman using a continuous rotation servo motor! Un
 - Mini Breadboard (from previous days)
 - Jumper Wires
 - Cardboard/craft materials for snowman
-- Decorative supplies
+- Decorative supplies (googly eyes, buttons, pipe cleaners, etc.)
+- Tape or hot glue (with adult supervision)
 
 ## Understanding Your Continuous Rotation Servo
 The FS90R is different from a regular servo:
@@ -30,53 +31,87 @@ The FS90R is different from a regular servo:
 
 Choose your design based on what you want your snowman to do - remember that this servo will keep spinning rather than moving back and forth like our previous project!
 
-## Differences from Day 7's Servo
-- Continuous rotation vs. position control
-- Speed control (including direction) vs. angle control
-- No position limits - can spin forever
-- Great for continuous motions but can't hold specific positions
-
 ## Instructions for Age 9
 
-1. Breadboard Setup:
-   - Important: Use 5V for power!
-   - Red jumper from 5V to + rail
-   - Black jumper from GND to - rail
+### 1. Physical Setup
+1. Connect your servo:
+   - Red wire to VOUT (3.3V)
+   - Black/Brown wire to GND
+   - Yellow/Orange wire to A1
 
-2. Connect First Servo (Left Arm):
-   - Place wires in breadboard:
-     - Red wire to + rail (5V)
-     - Black/Brown wire to - rail
-     - Orange/Yellow wire to a free row
-   - Connect signal row to A1
+2. Build your snowman:
+   - Cut out three circles from cardboard for the body
+   - Make a small hole for the servo horn
+   - Decorate with googly eyes and buttons
+   - Attach arms (one will be motorized!)
 
-3. Connect Second Servo (Right Arm):
-   - Place wires in breadboard:
-     - Red wire to + rail (5V)
-     - Black/Brown wire to - rail
-     - Orange/Yellow wire to a free row
-   - Connect signal row to A2
+### 2. MakeCode Programming
+1. Open MakeCode for Circuit Playground Express
+2. Add the Servo extension:
+   - Click on Advanced
+   - Click Extensions
+   - Choose "Servo"
 
-4. Create Your Snowman:
-   - Cut out basic snowman shape
-   - Make slots for servo horns
-   - Attach arms carefully
-   - Add decorations
+3. Basic Program Structure:
+```blocks
+// On Start - setup
+let continuous_servo = servos.A1
+continuous_servo.stopOnNeutral = true
 
-5. Test Your Dancer:
-   - Press A for wave pattern
-   - Press B for dance moves
-   - Both buttons for special dance!
+// Button A - Gentle Wave
+input.buttonA.onEvent(ButtonEvent.Click, function () {
+    continuous_servo.run(30)
+    pause(1000)
+    continuous_servo.run(-30)
+    pause(1000)
+    continuous_servo.stop()
+})
 
-## Instructions for Age 13
+// Button B - Fun Spin
+input.buttonB.onEvent(ButtonEvent.Click, function () {
+    continuous_servo.run(50)
+    pause(2000)
+    continuous_servo.run(-50)
+    pause(2000)
+    continuous_servo.stop()
+})
+
+// Shake - Dance Party!
+input.onGesture(Gesture.Shake, function() {
+    for (let i = 0; i < 4; i++) {
+        continuous_servo.run(75)
+        light.showRing("red")
+        pause(500)
+        continuous_servo.run(-75)
+        light.showRing("blue")
+        pause(500)
+    }
+    continuous_servo.stop()
+    light.clear()
+})
+```
+
+### 3. Program Explanation for Kids
+- The servo speed ranges from -100 (full speed backward) to 100 (full speed forward)
+- 0 means stop
+- Positive numbers make it spin one way
+- Negative numbers make it spin the other way
+- Bigger numbers mean faster spinning!
+
+### 4. Fun Controls
+- Press A for a gentle wave
+- Press B for a faster spin
+- Shake the CPX for a dance party with lights!
+
+## Instructions for Age 13 (CircuitPython Version)
 
 1. Advanced Setup:
    - Follow basic servo connections
    - Plan arm movements carefully
-   - Consider servo mounting
+   - Consider servo mounting angles
 
-2. Basic Movement Code:
-```
+2. CircuitPython Code:
+```python
 import time
 import board
 import pwmio
@@ -202,25 +237,29 @@ try:
 except KeyboardInterrupt:
     stop_servo()
     cp.pixels.fill((0, 0, 0))
-  ```
+```
 
-## Testing and Troubleshooting
+## Troubleshooting Guide
 
-### For 9-Year-Olds:
-1. Arms Not Moving?
-   - Check all wire colors
-   - Verify 5V power (important!)
-   - Test servos one at a time
-   - Make sure arms can move freely
+### Common Issues and Solutions
+1. Servo Not Moving
+   - Check wire connections
+   - Verify power (red wire) is connected to VOUT
+   - Make sure code is properly uploaded
+   - Try restarting the Circuit Playground Express
 
-### For 13-Year-Olds:
-1. Movement Issues?
-   - Debug servo angles
-   - Check timing values
-   - Test power supply
-   - Verify pin assignments
+2. Jerky Movement
+   - Reduce speed values
+   - Check for loose connections
+   - Make sure arm isn't too heavy
+   - Verify power supply is adequate
 
-## Servo Tips (Using a Continuous Rotation Servo)
+3. Servo Running When Should Be Stopped
+   - In MakeCode: Check stopOnNeutral setting
+   - In CircuitPython: Verify throttle = 0
+   - May need mechanical trim adjustment
+
+## Servo Tips
 
 ### 1. Power Notes
 - Can operate at 3.3V-6V (we're using CPX's 3.3V)
@@ -240,50 +279,63 @@ except KeyboardInterrupt:
 - Allow smooth acceleration/deceleration
 - Keep wire connections secure during rotation
 
-### 4. Connections Guide
-```
-Servo Connection:
-- Brown/Black wire → GND
-- Red wire → 3.3V/VOUT
-- Orange/Yellow wire → A1
-```
-
-### 5. Speed Reference
+### 4. Speed Reference
 - Full Speed Forward: throttle = 1.0
 - Half Speed Forward: throttle = 0.5
 - Stop: throttle = 0.0
 - Half Speed Backward: throttle = -0.5
 - Full Speed Backward: throttle = -1.0
 
-### 6. Troubleshooting
-- If servo drifts when stopped: Adjust mechanical trim
-- If movement is jerky: Increase acceleration steps
-- If servo is too fast: Reduce throttle values
-- If servo is unresponsive: Check wire connections
-
-Remember: This servo is different from a standard position servo - it's designed for continuous rotation and speed control rather than specific angles.
-
 ## Extension Ideas
 
 ### For 9-Year-Olds:
-1. Add dance moves
-2. Create arm patterns
-3. Sync with music
+1. Light Show
+   - Add different colored lights for different movements
+   - Create patterns that match the servo speed
+   - Use the light sensor to control speed
+
+2. Sound Effects
+   - Play notes while dancing
+   - Create different songs for different moves
+   - Make sounds match the movement speed
+
+3. Interactive Controls
+   - Use tilt to control direction
+   - Clap to change speeds
+   - Light level controls movement
 
 ### For 13-Year-Olds:
-1. Complex choreography
-2. Motion sequences
-3. Interactive dances
-4. Sound integration
+1. Complex Choreography
+   - Create multi-step dance routines
+   - Add acceleration/deceleration
+   - Synchronize multiple servos
 
-## Safety Notes
-- Use correct voltage (5V)
-- Don't force arms
-- Keep wires organized
-- Secure servo mounts
+2. Advanced Integration
+   - Add sound responses
+   - Create interactive light shows
+   - Build motion detection triggers
 
-## Parent Notes
-- Help with servo mounting
-- Guide arm attachment
-- Assist with testing
-- Support creativity
+## Enhanced Safety Notes
+- Always connect wires while the Circuit Playground Express is unpowered
+- Double-check wire connections before powering on
+- Keep fingers away from spinning parts
+- Use tape to secure any loose wires
+- Ask for adult help when using hot glue
+- Don't force the servo if it gets stuck
+
+## Show and Tell Ideas
+- Record a video of your snowman dancing
+- Create a story about your snowman's special moves
+- Design a dance routine to music
+- Challenge friends to create different movements
+- Share your code with others
+
+## Tips for Success
+- Start with slow movements and gradually increase speed
+- Test each new feature before adding more
+- Keep the moving parts lightweight
+- Secure all connections well
+- Document your favorite movement patterns
+- Take breaks if you get stuck - fresh eyes help!
+
+Remember: Every snowman can dance differently - be creative with your design!
