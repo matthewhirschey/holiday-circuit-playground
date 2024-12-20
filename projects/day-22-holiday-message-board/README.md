@@ -1,4 +1,4 @@
-# Day 20: Holiday Message Board
+# Day 22: Holiday Message Board
 
 ## Overview
 Transform your 1.3" OLED display into a festive message board! This project creates an interactive display that can show scrolling holiday messages, custom icons, and animated text. Perfect for spreading holiday cheer or leaving fun messages for family members.
