@@ -1,188 +1,427 @@
-# Day 20: Frosty's Meltdown Detector
+# Day 20: Save Frosty! The Journey Home
 
 ## Overview
-Create an interactive temperature monitoring system to help keep Frosty the Snowman safe! This project uses the Adafruit HTS221 temperature sensor and NeoPixels to create a visual alert system that warns when conditions might be too warm for Frosty.
+Help Frosty get back to the North Pole! Build a sensor-equipped sled that will help Frosty navigate through three challenging zones on his journey home. You'll create both the sled and the game board, then use temperature, light, and sound sensors to guide Frosty safely through each challenge.
 
 ## Materials Needed
 - Circuit Playground Express
-- Adafruit HTS221 Temperature & Humidity Sensor
-- NeoPixel LED
+- Temperature Sensor (HTS221)
+- Continuous Servo Motor
+- Cardstock/Thick Paper
+- Small Fan Blades (can be made from cardstock)
+- Markers/Colored Pencils
+- Tape or Glue
+- USB Cable
 - Mini Breadboard
-- STEMMA QT / Qwiic JST SH Cable
 - Jumper Wires
-- Optional: Small Snowman decoration
+- Optional: Craft decorations for game board
 
-## Setup
+## Game Board Setup
+1. **Create the Game Board:**
+   - Use a large piece of cardstock or poster board
+   - Draw a path from "Start" to "North Pole"
+   - Create three challenge zones:
+     - Heat Wave Valley (uses temperature sensor)
+     - Dark Ice Cave (uses light sensor)
+     - Slippery Bridge (uses sound sensor)
+   - Mark "Safe Zones" between each challenge
 
-### For 9-Year-Olds
-1. Connect Temperature Sensor:
-   - Plug one end of STEMMA QT cable into HTS221
-   - Connect other end to Circuit Playground Express
-   - Sensor automatically connects to I²C pins
+2. **Build Frosty's Sled:**
+   - Cut cardstock to create sled base (template provided)
+   - Mount Circuit Playground Express on top
+   - Attach temperature sensor at front
+   - Mount servo with fan at back
+   - Decorate your sled!
 
-2. Basic LED Setup:
-   - NeoPixel will use built-in LED on Circuit Playground
-   - No additional wiring needed!
+3. **Challenge Zone Setup:**
+   - Heat Wave Valley: Mark "warm" areas in red
+   - Dark Ice Cave: Create a tunnel with cardstock
+   - Slippery Bridge: Mark "danger zones" where noise could cause falls
 
-3. Create Frosty's Home:
-   - Design a small area for Frosty
-   - Add temperature sensor nearby
-   - Make it festive!
+## Coding Instructions
 
-### For 13-Year-Olds
-1. Advanced Setup:
-   - Follow basic connections
-   - Add external NeoPixel for brighter display
-   - Consider adding multiple temperature check points
+### For 9-Year-Olds (Using MakeCode)
 
-2. Basic Temperature Code:
+Let's build Frosty's sled controls step by step!
+
+1. **First, create our variables:**
+```blocks
+let gameZone = 1        // Which challenge zone we're in
+let frostyTemp = 0      // How warm Frosty is
+let brightness = 0      // How bright it is around Frosty
+let noiseLevel = 0      // How noisy it is around Frosty
+let isGameActive = false // Whether we're playing or not
+```
+
+2. **Make the Start Button (Button A):**
+```blocks
+input.buttonA.onEvent(ButtonEvent.Click, function () {
+    // When A is pressed, start the game!
+    isGameActive = true
+    gameZone = 1
+    light.setAll(0x00ff00)  // Green means go!
+    music.playSound(music.sounds(Sounds.PowerUp))
+    basic.showString("GO!")
+})
+```
+
+3. **Make the Zone Change Button (Button B):**
+```blocks
+input.buttonB.onEvent(ButtonEvent.Click, function () {
+    // Move to next zone when B is pressed
+    if (isGameActive) {
+        gameZone += 1
+        if (gameZone > 3) {
+            gameZone = 1
+        }
+        // Show which zone we're in
+        basic.showNumber(gameZone)
+        music.playSound(music.sounds(Sounds.BaDing))
+    }
+})
+```
+
+4. **Program Zone 1 - Heat Wave Valley:**
+```blocks
+// In your forever loop
+if (gameZone == 1) {
+    // Check Frosty's temperature
+    frostyTemp = input.temperature()
+    
+    // If it's too hot
+    if (frostyTemp > 25) {
+        light.setAll(0xff0000)  // Red lights = danger!
+        music.playTone(440, 200) // Warning beep
+        servos.P1.run(50)       // Turn on cooling fan
+    } else {
+        light.setAll(0x0000ff)  // Blue lights = safe
+        servos.P1.stop()        // Fan off when cool
+    }
+}
+```
+
+5. **Program Zone 2 - Dark Ice Cave:**
+```blocks
+if (gameZone == 2) {
+    // Check how bright it is
+    brightness = input.lightLevel()
+    
+    // If it's too bright
+    if (brightness > 20) {
+        light.setAll(0xff0000)  // Red lights = danger!
+        music.playTone(440, 200) // Warning beep
+    } else {
+        light.setAll(0x00ff00)  // Green lights = safe
+    }
+}
+```
+
+6. **Program Zone 3 - Slippery Bridge:**
+```blocks
+if (gameZone == 3) {
+    // Check how noisy it is
+    noiseLevel = input.soundLevel()
+    
+    // If it's too noisy
+    if (noiseLevel > 100) {
+        light.setAll(0xff0000)  // Red lights = danger!
+        music.playTone(880, 200) // High warning beep
+    } else {
+        light.setAll(0x00ff00)  // Green lights = safe
+    }
+}
+```
+
+7. **Add Victory Check:**
+```blocks
+// At the end of your forever loop
+if (gameZone == 3 && input.buttonA.isPressed() && input.buttonB.isPressed()) {
+    // Victory celebration when both buttons pressed in final zone
+    for (let i = 0; i < 4; i++) {
+        light.showAnimation(light.rainbowAnimation, 500)
+        music.playSound(music.sounds(Sounds.MagicWand))
+    }
+    basic.showString("WIN!")
+    isGameActive = false
+}
+```
+
+**Tips for Playing:**
+- Press Button A to start the game
+- Press Button B to move to the next zone
+- Watch the NeoPixels:
+  - Blue = Frosty is nice and cold
+  - Green = Safe to proceed
+  - Red = Danger! Take action!
+- In Zone 1: Use the fan when it gets too warm
+- In Zone 2: Keep Frosty in the shadows
+- In Zone 3: Move very quietly!
+- Press both buttons in Zone 3 to win when you reach the North Pole!
+
+### For 13-Year-Olds (Using CircuitPython)
 ```python
-import time
 import board
-import adafruit_hts221
+import time
 import neopixel
+import adafruit_hts221
 from adafruit_circuitplayground import cp
 
-# Set up I2C and sensor
-i2c = board.I2C()
-temp_sensor = adafruit_hts221.HTS221(i2c)
+class FrostySled:
+    """
+    Frosty's Escape Sled - Help Frosty navigate through three challenges!
+    """
+    def __init__(self):
+        # Setup NeoPixels and sensors
+        self.pixels = neopixel.NeoPixel(board.NEOPIXEL, 10, brightness=0.3)
+        self.temp_sensor = adafruit_hts221.HTS221(board.I2C())
+        
+        # Game state variables
+        self.current_zone = 0  # 0: Heat Wave, 1: Ice Cave, 2: Bridge
+        self.score = 0
+        self.lives = 3
+        self.game_active = False
+        
+        # Challenge thresholds
+        self.TEMP_THRESHOLD = 25.0    # Celsius
+        self.LIGHT_THRESHOLD = 20     # Ambient light level
+        self.SOUND_THRESHOLD = 200    # Sound level
+        
+        # Timer for challenges
+        self.zone_start_time = 0
+        self.zone_duration = 5  # Seconds to complete each zone
+        
+    def start_game(self):
+        """Initialize a new game"""
+        self.game_active = True
+        self.lives = 3
+        self.score = 0
+        self.current_zone = 0
+        self.show_startup_animation()
+        print("Game Started! Help Frosty get home!")
+        
+    def show_startup_animation(self):
+        """Display rainbow animation at start"""
+        for i in range(10):
+            for j in range(10):
+                self.pixels[j] = (
+                    int((i + j) * 25) % 255,  # R
+                    int((i + j) * 40) % 255,  # G
+                    int((i + j) * 60) % 255   # B
+                )
+            time.sleep(0.1)
+            
+    def check_heat_wave(self):
+        """
+        Zone 1: Heat Wave Valley
+        Return: True if safe, False if too hot
+        """
+        temp = self.temp_sensor.temperature
+        print(f"Temperature: {temp:.1f}°C")
+        
+        if temp > self.TEMP_THRESHOLD:
+            self.pixels.fill((255, 0, 0))  # Red
+            cp.play_tone(440, 0.2)
+            # Activate cooling fan on pin A1
+            cp.play_tone(440, 0.2)
+            return False
+        else:
+            self.pixels.fill((0, 0, 255))  # Blue
+            return True
+            
+    def check_ice_cave(self):
+        """
+        Zone 2: Dark Ice Cave
+        Return: True if safe, False if too bright
+        """
+        light = cp.light
+        print(f"Light Level: {light}")
+        
+        if light > self.LIGHT_THRESHOLD:
+            self.pixels.fill((255, 165, 0))  # Orange
+            cp.play_tone(550, 0.1)
+            return False
+        else:
+            self.pixels.fill((0, 255, 0))  # Green
+            return True
+            
+    def check_bridge(self):
+        """
+        Zone 3: Slippery Bridge
+        Return: True if safe, False if too noisy
+        """
+        sound = cp.sound_level
+        print(f"Sound Level: {sound}")
+        
+        if sound > self.SOUND_THRESHOLD:
+            self.pixels.fill((255, 0, 0))  # Red
+            cp.play_tone(660, 0.1)
+            return False
+        else:
+            self.pixels.fill((0, 255, 0))  # Green
+            return True
+            
+    def update_score(self, success):
+        """Update game score based on performance"""
+        if success:
+            self.score += 10
+        else:
+            self.lives -= 1
+            if self.lives <= 0:
+                self.game_over()
+                
+    def game_over(self):
+        """Handle end of game"""
+        self.game_active = False
+        self.pixels.fill((0, 0, 0))  # Turn off lights
+        print(f"Game Over! Final Score: {self.score}")
+        print(f"Press Button A to play again!")
+        
+    def victory_celebration(self):
+        """Display victory animation"""
+        for _ in range(3):
+            for i in range(255):
+                g = abs(128 - i) % 255
+                self.pixels.fill((i, g, 255 - i))
+                time.sleep(0.01)
+        print(f"Victory! Score: {self.score}")
 
-# Configure NeoPixel
-pixels = neopixel.NeoPixel(board.NEOPIXEL, 10, brightness=0.3)
+# Main game loop
+print("Welcome to Save Frosty!")
+print("Press Button A to start")
+print("Press Button B to change zones")
+print("Complete all zones to win!")
 
-# Temperature thresholds (in Celsius)
-COLD = 0
-COOL = 10
-WARM = 20
-HOT = 25
-
-def get_temp_color(temperature):
-    """Convert temperature to RGB color"""
-    if temperature <= COLD:
-        return (0, 0, 255)  # Blue
-    elif temperature <= COOL:
-        return (0, 255, 255)  # Cyan
-    elif temperature <= WARM:
-        return (255, 255, 0)  # Yellow
-    else:
-        return (255, 0, 0)  # Red
+sled = FrostySled()
 
 while True:
-    # Read temperature
-    temp = temp_sensor.temperature
-    
-    # Update all pixels with temperature color
-    color = get_temp_color(temp)
-    pixels.fill(color)
-    
-    # Add a brief flash if temperature is too high
-    if temp > HOT:
-        time.sleep(0.5)
-        pixels.fill((0, 0, 0))
-        time.sleep(0.5)
-    else:
-        time.sleep(1)
+    if cp.button_a:  # Start/Restart game
+        sled.start_game()
+        time.sleep(0.5)  # Debounce
+        
+    if sled.game_active:
+        # Check for zone change
+        if cp.button_b:
+            sled.current_zone = (sled.current_zone + 1) % 3
+            print(f"Entering Zone {sled.current_zone + 1}")
+            time.sleep(0.5)  # Debounce
+            
+        # Run current zone challenge
+        if sled.current_zone == 0:
+            success = sled.check_heat_wave()
+        elif sled.current_zone == 1:
+            success = sled.check_ice_cave()
+        else:
+            success = sled.check_bridge()
+            
+        # Update game state
+        sled.update_score(success)
+        
+        # Check for victory (all zones completed successfully)
+        if cp.button_a and cp.button_b and sled.current_zone == 2:
+            sled.victory_celebration()
+            sled.game_active = False
+            
+        time.sleep(0.1)  # Small delay to prevent CPU overload
 ```
 
-3. Advanced Features:
-```python
-class FrostyMonitor:
-    def __init__(self):
-        self.i2c = board.I2C()
-        self.sensor = adafruit_hts221.HTS221(self.i2c)
-        self.pixels = neopixel.NeoPixel(board.NEOPIXEL, 10, brightness=0.3)
-        self.temp_history = []
-        
-    def check_temperature(self):
-        """Monitor temperature and update history"""
-        temp = self.sensor.temperature
-        self.temp_history.append(temp)
-        
-        # Keep last hour of readings (one per minute)
-        if len(self.temp_history) > 60:
-            self.temp_history.pop(0)
-        
-        return temp
-    
-    def calculate_trend(self):
-        """Calculate temperature trend"""
-        if len(self.temp_history) < 2:
-            return 0
-        return self.temp_history[-1] - self.temp_history[-2]
-    
-    def update_display(self):
-        """Update NeoPixel display with temperature and trend"""
-        temp = self.check_temperature()
-        trend = self.calculate_trend()
-        
-        # Base color from temperature
-        color = get_temp_color(temp)
-        
-        # Show trend with animation
-        if trend > 0.5:  # Rising temperature
-            for i in range(10):
-                self.pixels[i] = color
-                time.sleep(0.1)
-        elif trend < -0.5:  # Falling temperature
-            for i in range(9, -1, -1):
-                self.pixels[i] = color
-                time.sleep(0.1)
-        else:  # Stable temperature
-            self.pixels.fill(color)
-```
+Key Features:
+1. **Game State Management**
+   - Lives system (3 lives)
+   - Score tracking
+   - Clear zone progression
+
+2. **Enhanced Feedback**
+   - Serial output for debugging
+   - Visual feedback with NeoPixels
+   - Sound feedback for events
+
+3. **Safety Features**
+   - Button debouncing
+   - CPU load management
+   - Error handling
+
+4. **Game Mechanics**
+   - Start/restart functionality
+   - Victory conditions
+   - Multiple challenge zones
+
+To Use:
+1. Copy code to `code.py`
+2. Connect temp sensor to I2C pins
+3. Press A to start game
+4. Press B to change zones
+5. Complete all zones with lives remaining to win
+6. Press both A+B in final zone to trigger victory
+
+## Challenge Rules
+1. **Heat Wave Valley:**
+   - Keep Frosty cool as you cross the warm zone
+   - Fan activates automatically when too warm
+   - Must maintain safe temperature to pass
+
+2. **Dark Ice Cave:**
+   - Navigate through the cave keeping light levels low
+   - Too much light means ice is melting
+   - Must keep light levels below threshold
+
+3. **Slippery Bridge:**
+   - Cross quietly to avoid vibrations
+   - Too much noise could make Frosty fall
+   - Must keep sound levels low
 
 ## Testing and Troubleshooting
 
 ### For 9-Year-Olds:
-1. Sensor Not Working?
-   - Check cable connections
-   - Try unplugging and reconnecting
-   - Make sure nothing is blocking the sensor
-   - Reset the board
+1. **Temperature Issues:**
+   - Check servo connection
+   - Verify temperature readings with serial monitor
+   - Test fan operation
+   
+2. **Light Sensor:**
+   - Test in different lighting conditions
+   - Adjust threshold if needed
+   - Make sure cave is dark enough
+
+3. **Sound Sensor:**
+   - Test different noise levels
+   - Adjust sensitivity if needed
+   - Check speaker operation
 
 ### For 13-Year-Olds:
-1. Temperature Issues?
-   - Verify I²C connection
-   - Check sensor readings
-   - Test different locations
-   - Compare with known temperature
+1. **Sensor Calibration:**
+   - Use serial plotter to monitor sensors
+   - Adjust thresholds based on environment
+   - Implement averaging for stability
+
+2. **Code Debugging:**
+   - Monitor serial output
+   - Check zone transitions
+   - Verify sensor readings
 
 ## Extension Ideas
 
 ### For 9-Year-Olds:
-1. Add snow decorations
-2. Create a Frosty character
-3. Make temperature warning signs
-4. Design a "safe zone" marker
+1. Add scoring system
+2. Create custom animations
+3. Add victory celebration
+4. Design different paths
 
 ### For 13-Year-Olds:
 1. Add data logging
-2. Create temperature graphs
-3. Multiple sensor zones
-4. Mobile alerts system
-
-## Temperature Monitoring Tips
-
-1. Sensor Placement:
-   - Keep away from heat sources
-   - Allow air circulation
-   - Consider multiple locations
-   - Test in different conditions
-
-2. Alert Design:
-   - Clear color coding
-   - Distinct warning signals
-   - Easy to understand
-   - Quick response time
+2. Create multi-player mode
+3. Implement difficulty levels
+4. Add time challenges
 
 ## Safety Notes
 - Handle electronics carefully
-- Keep sensors dry
+- Keep components dry
 - Secure all connections
-- Monitor power usage
+- Adult supervision required
 
 ## Parent Notes
-- Help with temperature thresholds
+- Help with game board setup
 - Guide sensor placement
 - Assist with testing
 - Support creative additions
+
+Have fun helping Frosty get home safely to the North Pole! 🎄❄️
