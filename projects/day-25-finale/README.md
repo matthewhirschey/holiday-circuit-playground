@@ -1,6 +1,6 @@
 # Day 25: Circuit Playground Finale! 🌟
 
-## Projects for Grace (Age 9)
+## Starting Projects
 
 | Project Name | Description | Difficulty | Link |
 |-------------|-------------|------------|------|
@@ -10,7 +10,7 @@
 | Story Sound Box | Interactive sound effects for storytelling | ⭐⭐ | [View Project](projects/story-box.md) |
 | Simple Simon Game | Memory game with lights and sounds | ⭐⭐ | [View Project](projects/simple-simon.md) |
 
-## Projects for Henry (Age 13)
+## Challenging Projects
 
 | Project Name | Description | Difficulty | Link |
 |-------------|-------------|------------|------|
